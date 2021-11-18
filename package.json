@@ -1,5 +1,5 @@
 {
-  "name": "@vitejs/plugin-mpx",
+  "name": "vite-plugin-mpx",
   "version": "1.0.0",
   "description": "Vite plugin of mpx convert to web",
   "main": "dist/index.js",
