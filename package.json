@@ -1,9 +1,11 @@
 {
   "name": "@vitejs/plugin-mpx",
   "version": "1.0.0",
-  "description": "",
+  "description": "Vite plugin of mpx convert to web",
   "main": "dist/index.js",
   "types": "temp/index.d.ts",
+  "author": "mater1996 <bxh8640@gmail.com>",
+  "license": "MIT",
   "directories": {
     "example": "example"
   },
@@ -11,6 +13,14 @@
     "dist",
     "temp",
     "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mater1996/vite-plugin-mpx.git"
+  },
+  "keywords": [
+    "vite",
+    "mpx"
   ],
   "scripts": {
     "dev": "tsc -p . -w --incremental",
@@ -20,8 +30,6 @@
     "lint": "npx eslint --fix . --ext .ts",
     "release": "release-it"
   },
-  "author": "mater",
-  "license": "ISC",
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",
     "@commitlint/config-conventional": "^15.0.0",
