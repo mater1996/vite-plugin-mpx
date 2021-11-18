@@ -1,0 +1,23 @@
+<template>
+<view>
+    123213
+</view>
+</template>
+
+<script>
+console.log('123')
+</script>
+
+<script type="application/json">
+{
+  "usingComponents": {
+    "intro": "../../components/component.mpx"
+  }
+}
+</script>
+
+<style>
+.a{
+  color: red;
+}
+</style>
