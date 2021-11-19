@@ -1,14 +1,14 @@
 import { TransformPluginContext } from 'rollup'
-import processTemplate, { ProcessTemplateResult } from '../web/processTemplate'
-import processJSON, { ProcessJsonResult } from '../web/processJSON'
-import processStyles from '../web/processStyles'
-import processScript from '../web/processScript'
+import { TransformResult } from 'vite'
+import processTemplate, { ProcessTemplateResult } from './web/processTemplate'
+import processJSON, { ProcessJsonResult } from './web/processJSON'
+import processStyles from './web/processStyles'
+import processScript from './web/processScript'
 import { ResolvedOptions } from '../index'
 import { SFCDescriptor } from '../compiler'
 import { createDescriptor } from '../utils/descriptorCache'
 import resolveJson from '../utils/resolveJson'
 import { Query } from '../utils/parseRequest'
-import { TransformResult } from 'vite'
 
 export default async function transformMpx(
   filename: string,

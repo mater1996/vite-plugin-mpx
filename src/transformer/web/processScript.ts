@@ -1,17 +1,17 @@
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
 import { TransformPluginContext } from 'rollup'
-import { ResolvedOptions } from '../index'
-import { SFCDescriptor } from '../compiler'
 import { ProcessResult } from './process'
 import { ProcessJsonResult } from './processJSON'
 import { ProcessTemplateResult } from './processTemplate'
-import { APP_HELPER_CODE } from '../helper'
-import addQuery from '../utils/addQuery'
-import { resolveMpxRuntime } from '../utils/resolveMpx'
-import resolveScriptFile from '../utils/resolveScript'
-import omit from '../utils/omit'
-import shallowStringify from '../utils/shallowStringify'
-import stringify from '../utils/stringify'
+import { ResolvedOptions } from '../../index'
+import { SFCDescriptor } from '../../compiler'
+import { APP_HELPER_CODE } from '../../helper'
+import addQuery from '../../utils/addQuery'
+import { resolveMpxRuntime } from '../../utils/resolveMpx'
+import resolveScriptFile from '../../utils/resolveScript'
+import omit from '../../utils/omit'
+import shallowStringify from '../../utils/shallowStringify'
+import stringify from '../../utils/stringify'
 
 const optionProcessorPath = resolveMpxRuntime('optionProcessor')
 const tabBarContainerPath = resolveMpxRuntime(
@@ -131,6 +131,12 @@ export default async function processScript(
         content.unshift(`import { i18n } from "${APP_HELPER_CODE}"`)
       }
 
+      content.push(`global.currentSrcMode = ${stringify(scriptSrcMode)}`)
+
+      if (!isProduction) {
+        content.push(`global.currentResource = ${stringify(filename)}`)
+      }
+
       const pagesMap: Record<string, string> = {}
       const componentsMap: Record<string, string> = {}
       const tabBarPagesMap: Record<string, string> = {}
@@ -205,12 +211,6 @@ export default async function processScript(
           { __mpxBuiltIn: true }
         )
       })
-
-      content.push(`global.currentSrcMode = ${stringify(scriptSrcMode)}`)
-
-      if (!isProduction) {
-        content.push(`global.currentResource = ${stringify(filename)}`)
-      }
 
       const pageConfig = page
         ? omit(jsonConfig, ['usingComponents', 'style', 'singlePage'])

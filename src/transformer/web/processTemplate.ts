@@ -1,10 +1,10 @@
 import path from 'path'
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
 import { TransformPluginContext } from 'rollup'
-import templateCompiler, { SFCDescriptor } from '../compiler'
-import { ResolvedOptions } from '../index'
 import { ProcessResult } from './process'
-import { resolveMpxRuntime } from '../utils/resolveMpx'
+import templateCompiler, { SFCDescriptor } from '../../compiler'
+import { ResolvedOptions } from '../../index'
+import { resolveMpxRuntime } from '../../utils/resolveMpx'
 
 const mpxKeepAlivePath = resolveMpxRuntime('components/web/mpx-keep-alive.vue')
 

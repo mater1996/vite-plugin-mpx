@@ -1,7 +1,7 @@
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
-import stringify from '../utils/stringify'
-import { SFCDescriptor } from '../compiler'
 import { ProcessResult } from './process'
+import stringify from '../../utils/stringify'
+import { SFCDescriptor } from '../../compiler'
 
 export type ProcessStylesResult = ProcessResult
 
