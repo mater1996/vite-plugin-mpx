@@ -1,3 +1,10 @@
+# [1.0.0-alpha.3](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.2...1.0.0-alpha.3) (2021-11-19)
+
+
+### Bug Fixes
+
+* exclude optimize @mpxjs/proxy-api ([350bfde](https://github.com/mater1996/vite-plugin-mpx/commit/350bfde6a07c0ffc2f9e0b7bac0b006f840ed00f))
+
 # [1.0.0-alpha.2](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.1...1.0.0-alpha.2) (2021-11-19)
 
 
