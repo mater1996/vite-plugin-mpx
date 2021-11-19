@@ -80,13 +80,11 @@ function mpx(options: ResolvedOptions): Plugin {
     name: MpxPluginName,
     enforce: 'pre',
 
-    config(config, { mode }) {
-      if (mode === 'development') {
-        return {
-          optimizeDeps: {
-            exclude: ['@mpxjs/core', '@mpxjs/api-proxy'], // @mpxjs/core need addModePlugin transform
-            include: ['lodash/flatten.js', 'lodash/throttle'] // The above module contains these CommonJS modules and requires a separate Prebuild
-          }
+    config() {
+      return {
+        optimizeDeps: {
+          exclude: ['@mpxjs/core'],
+          include: ['lodash/flatten.js', 'lodash/throttle']
         }
       }
     },
@@ -139,7 +137,7 @@ export default function (options: Options = {}): Plugin[] {
   const plugins = [
     mpx(resolvedOptions), // mpx => vue
     addMode({
-      include: [/@mpxjs\/core/, /@mpxjs\/api-proxy/], // *.* => *.{mode}.*
+      include: [/@mpxjs/], // *.* => *.{mode}.*
       mode: resolvedOptions.mode
     }),
     vue({
@@ -159,7 +157,7 @@ export default function (options: Options = {}): Plugin[] {
   if (!resolvedOptions.isProduction) {
     plugins.push(
       commonjs({
-        include: [/@mpxjs\/webpack-plugin\/lib\/utils/, /@mpxjs\/api-proxy\//]
+        include: [/@mpxjs\/webpack-plugin\/lib\/utils/]
       })
     )
   }
