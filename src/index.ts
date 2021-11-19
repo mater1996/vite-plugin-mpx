@@ -85,7 +85,7 @@ function mpx(options: ResolvedOptions): Plugin {
         return {
           optimizeDeps: {
             exclude: ['@mpxjs/core', '@mpxjs/api-proxy'], // @mpxjs/core need addModePlugin transform
-            include: ['axios', 'lodash/flatten.js', 'lodash/throttle'] // The above module contains these CommonJS modules and requires a separate Prebuild
+            include: ['lodash/flatten.js', 'lodash/throttle'] // The above module contains these CommonJS modules and requires a separate Prebuild
           }
         }
       }

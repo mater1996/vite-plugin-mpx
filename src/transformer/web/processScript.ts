@@ -99,7 +99,7 @@ export default async function processScript(
       return attrs
     },
     content() {
-      const content = [scriptContent]
+      const content = []
 
       const genImport = (
         varString: string,
@@ -117,24 +117,26 @@ export default async function processScript(
         }
       }
 
+      content.unshift(scriptContent)
+
       content.unshift(
         `import processOption, { getComponent, getWxsMixin } from "${optionProcessorPath}"`
       )
-
-      if (app) {
-        content.unshift(`import "${APP_HELPER_CODE}"`)
-        content.unshift(`import Vue from "vue"`)
-        content.unshift(`import VueRouter from "vue-router"`)
-      }
 
       if (i18n) {
         content.unshift(`import { i18n } from "${APP_HELPER_CODE}"`)
       }
 
-      content.push(`global.currentSrcMode = ${stringify(scriptSrcMode)}`)
+      if (app) {
+        content.unshift(`import "${APP_HELPER_CODE}"`)
+        content.unshift(`import VueRouter from "vue-router"`)
+        content.unshift(`import Vue from "vue"`)
+      }
+
+      content.unshift(`global.currentSrcMode = ${stringify(scriptSrcMode)}`)
 
       if (!isProduction) {
-        content.push(`global.currentResource = ${stringify(filename)}`)
+        content.unshift(`global.currentResource = ${stringify(filename)}`)
       }
 
       const pagesMap: Record<string, string> = {}
