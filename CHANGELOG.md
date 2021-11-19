@@ -1,3 +1,5 @@
+# [1.0.0-alpha.4](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.3...1.0.0-alpha.4) (2021-11-19)
+
 # [1.0.0-alpha.3](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.2...1.0.0-alpha.3) (2021-11-19)
 
 
