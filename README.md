@@ -13,7 +13,15 @@ npm install vite-plugin-mpx -D
 import mpx from 'vite-plugin-mpx'
 
 export default {
-  plugins: [mpx()]
+  plugins: [mpx()],
+  resolve: {
+    extensions: ['.mpx', '.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
+  },
+  // If you use `@mpxjs/api-proxy`
+  optimizeDeps: {
+    exclude: ['@mpxjs/api-proxy'],
+    include: ['axios']
+  }
 }
 ```
 
