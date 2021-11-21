@@ -1,3 +1,15 @@
+# [1.0.0-alpha.5](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.4...1.0.0-alpha.5) (2021-11-21)
+
+
+### Bug Fixes
+
+* vite warn sourmap missing ([ebcdb71](https://github.com/mater1996/vite-plugin-mpx/commit/ebcdb7199fb0490fddcb1d591a25dd03aeb21cd7))
+
+
+### Features
+
+* add esbuildAddModePlugin for prebuild ([709ae1c](https://github.com/mater1996/vite-plugin-mpx/commit/709ae1c239df8ec947b3e82ac7dfef88dfb8a98a))
+
 # [1.0.0-alpha.4](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.3...1.0.0-alpha.4) (2021-11-19)
 
 # [1.0.0-alpha.3](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.2...1.0.0-alpha.3) (2021-11-19)
