@@ -17,10 +17,10 @@ export default {
   resolve: {
     extensions: ['.mpx', '.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
-  // If you use `@mpxjs/api-proxy`
+  // If you used `swiper`, please include lodash/throttle
+  // https://vitejs.dev/config/#optimizedeps-exclude
   optimizeDeps: {
-    exclude: ['@mpxjs/api-proxy'],
-    include: ['axios']
+    include: ['lodash/throttle']
   }
 }
 ```

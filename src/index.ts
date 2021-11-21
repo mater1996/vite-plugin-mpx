@@ -7,7 +7,7 @@ import nodePolyfills from 'rollup-plugin-polyfill-node'
 import commonjs from '@rollup/plugin-commonjs'
 import mpxGlobal from './mpx'
 import transformMpx from './transformer/mpx'
-import addMode from './plugins/addModePlugin'
+import addMode, { esbuildAddModePlugin } from './plugins/addModePlugin'
 import {
   renderAppHelpCode,
   renderEntryCode,
@@ -83,8 +83,14 @@ function mpx(options: ResolvedOptions): Plugin {
     config() {
       return {
         optimizeDeps: {
-          exclude: ['@mpxjs/core'],
-          include: ['lodash/flatten.js', 'lodash/throttle']
+          esbuildOptions: {
+            plugins: [
+              esbuildAddModePlugin({
+                include: /@mpxjs/, // prebuild for addMode
+                mode: options.mode
+              })
+            ]
+          }
         }
       }
     },
@@ -137,7 +143,7 @@ export default function (options: Options = {}): Plugin[] {
   const plugins = [
     mpx(resolvedOptions), // mpx => vue
     addMode({
-      include: [/@mpxjs/], // *.* => *.{mode}.*
+      include: resolvedOptions.projectRoot, // *.* => *.{mode}.*
       mode: resolvedOptions.mode
     }),
     vue({
@@ -151,6 +157,10 @@ export default function (options: Options = {}): Plugin[] {
           resolvedOptions.isProduction ? 'production' : 'development'
         )
       })
+    }),
+    nodePolyfills({
+      include: [/@mpxjs/, /\.mpx/, /plugin-mpx:/, /polyfill-node/], // mpx global polyfill
+      exclude: [/polyfill-nodeglobal/] // ignore polyfill self
     })
   ]
 
@@ -161,12 +171,6 @@ export default function (options: Options = {}): Plugin[] {
       })
     )
   }
-
-  plugins.push(
-    nodePolyfills({
-      include: [/@mpxjs/, /\.mpx/, /plugin-mpx:/] // mpx global polyfill
-    })
-  )
 
   return plugins
 }

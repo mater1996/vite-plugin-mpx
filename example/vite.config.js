@@ -1,4 +1,3 @@
-import html from '@rollup/plugin-html'
 import mpx from '../dist/index'
 
 export default {

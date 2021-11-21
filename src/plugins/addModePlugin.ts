@@ -1,11 +1,41 @@
 import path from 'path'
+import fs from 'fs'
+import { Plugin as EsbuildPlugin } from 'esbuild'
 import { Plugin } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 
 export interface AddModeOptions {
-  include?: string | RegExp | (string | RegExp)[]
+  include: string | RegExp | (string | RegExp)[]
   exclude?: string | RegExp | (string | RegExp)[]
-  mode?: 'wx' | 'web' | 'ali' | 'swan'
+  mode: 'wx' | 'web' | 'ali' | 'swan'
+}
+
+export interface EsbuildAddModeOptions {
+  include: RegExp
+  mode: 'wx' | 'web' | 'ali' | 'swan'
+}
+
+export function esbuildAddModePlugin(
+  options: EsbuildAddModeOptions
+): EsbuildPlugin {
+  return {
+    name: 'esbuild:mpx-file-mode',
+    setup(build) {
+      build.onLoad({ filter: options.include }, (args) => {
+        const parseResult = path.parse(args.path)
+        const modeFile = path.format({
+          ...parseResult,
+          name: `${parseResult.name}.${options.mode}`,
+          base: undefined
+        })
+        if (fs.existsSync(modeFile)) {
+          return {
+            contents: fs.readFileSync(modeFile)
+          }
+        }
+      })
+    }
+  }
 }
 
 export default function addModePlugin(options: AddModeOptions): Plugin {
