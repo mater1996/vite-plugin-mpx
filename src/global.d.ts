@@ -109,8 +109,8 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
         filePath: string
         globalComponents: string[]
       }
-    ): any
-    serialize(root: any): string
+    ): unknown
+    serialize(root: unknown): string
   }
 
   declare const compiler: Compiler

@@ -50,7 +50,8 @@ export default async function transformMpx(
 
     return {
       code: result,
-      map: (descriptor.script?.map as any) || {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map: (descriptor.script?.map) as any || {
         mappings: ''
       }
     }

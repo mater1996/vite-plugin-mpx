@@ -23,13 +23,18 @@ interface Compiler {
     template: string,
     options: Parameters<MpxCompiler['parseComponent']>[1]
   ): SFCDescriptor
-  parse(template: string, options: Parameters<MpxCompiler['parse']>[1]): any
+  parse(template: string, options: Parameters<MpxCompiler['parse']>[1]): unknown
   serialize: MpxCompiler['serialize']
 }
 
 const compiler: Compiler = {
   parseComponent(template, options) {
-    return parseComponent(template, options) as SFCDescriptor
+    const descriptor = parseComponent(template, options) as SFCDescriptor
+    if(descriptor.script && descriptor.script.map){
+      const sources = descriptor.script.map.sources || []
+      descriptor.script.map.sources = sources.map(v=> v.split('?')[0])
+    }
+    return descriptor
   },
   parse(template, options) {
     return mpxCompiler.parse(template, options)

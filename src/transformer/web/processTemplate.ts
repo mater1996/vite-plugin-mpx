@@ -18,10 +18,11 @@ export interface ProcessTemplateResult extends ProcessResult {
   genericsInfo?: Record<string, unknown>
 }
 
-function calculateRootEleChild(arr: any) {
+function calculateRootEleChild(arr: []) {
   if (!arr) {
     return 0
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return arr.reduce((total: number, item: any) => {
     if (item.type === 1) {
       if (item.tag === 'template') {
@@ -114,7 +115,8 @@ export default async function processTemplate(
             filePath: filename,
             i18n: null,
             globalComponents: []
-          })
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          }) as any
           // 暂时不处理wxsModule
           // if (parsed.meta.wxsModuleMap) {
           //   wxsModuleMap = parsed.meta.wxsModuleMap
