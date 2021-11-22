@@ -1,3 +1,10 @@
+# [1.0.0-alpha.7](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.6...1.0.0-alpha.7) (2021-11-22)
+
+
+### Bug Fixes
+
+* production addModePlugin not transform [@mpxjs](https://github.com/mpxjs) ([ea3f055](https://github.com/mater1996/vite-plugin-mpx/commit/ea3f0556e0cd08eb4a5b44aa6a9d2bb5cdc76bd5))
+
 # [1.0.0-alpha.6](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.5...1.0.0-alpha.6) (2021-11-22)
 
 # [1.0.0-alpha.5](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.4...1.0.0-alpha.5) (2021-11-21)
