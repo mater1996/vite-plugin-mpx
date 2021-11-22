@@ -6,7 +6,6 @@ import { ProcessTemplateResult } from './processTemplate'
 import { ResolvedOptions } from '../../index'
 import { SFCDescriptor } from '../../compiler'
 import { APP_HELPER_CODE } from '../../helper'
-import addQuery from '../../utils/addQuery'
 import { resolveMpxRuntime } from '../../utils/resolveMpx'
 import resolveScriptFile from '../../utils/resolveScript'
 import omit from '../../utils/omit'
@@ -108,7 +107,7 @@ export default async function processScript(
         options: unknown = {}
       ) => {
         if (!async) {
-          content.unshift(`import ${varString} from "${resource}"`)
+          content.push(`import ${varString} from "${resource}"`)
           return `getComponent(${varString}, ${stringify(options)})`
         } else {
           return `() => import("${resource}").then(${varString} =>
@@ -117,26 +116,24 @@ export default async function processScript(
         }
       }
 
-      content.unshift(scriptContent)
+      if (app) {
+        content.push(`import "${APP_HELPER_CODE}"`)
+        content.push(`import Vue from "vue"`)
+        content.push(`import VueRouter from "vue-router"`)
+      }
 
-      content.unshift(
+      if (i18n) {
+        content.push(`import { i18n } from "${APP_HELPER_CODE}"`)
+      }
+
+      content.push(
         `import processOption, { getComponent, getWxsMixin } from "${optionProcessorPath}"`
       )
 
-      if (i18n) {
-        content.unshift(`import { i18n } from "${APP_HELPER_CODE}"`)
-      }
-
-      if (app) {
-        content.unshift(`import "${APP_HELPER_CODE}"`)
-        content.unshift(`import VueRouter from "vue-router"`)
-        content.unshift(`import Vue from "vue"`)
-      }
-
-      content.unshift(`global.currentSrcMode = ${stringify(scriptSrcMode)}`)
+      content.push(`global.currentSrcMode = ${stringify(scriptSrcMode)}`)
 
       if (!isProduction) {
-        content.unshift(`global.currentResource = ${stringify(filename)}`)
+        content.push(`global.currentResource = ${stringify(filename)}`)
       }
 
       const pagesMap: Record<string, string> = {}
@@ -180,9 +177,7 @@ export default async function processScript(
           const pageCfg = localPagesMap[pagePath]
           pagesMap[pagePath] = genImport(
             pageVar,
-            addQuery(pageCfg.resource, {
-              page: true
-            }),
+            pageCfg.resource,
             pageCfg.async,
             {
               __mpxPageRoute: pagePath
@@ -195,9 +190,7 @@ export default async function processScript(
         const componentCfg = localComponentsMap[componentName]
         componentsMap[componentName] = genImport(
           `__mpx__component__${index}`,
-          addQuery(componentCfg.resource, {
-            component: true
-          }),
+          componentCfg.resource,
           componentCfg.async
         )
       })
@@ -206,9 +199,7 @@ export default async function processScript(
         const componentCfg = builtInComponentsMap[componentName]
         componentsMap[componentName] = genImport(
           `__mpx__builtInComponent__${index}`,
-          addQuery(componentCfg.resource, {
-            component: true
-          }),
+          componentCfg.resource,
           false,
           { __mpxBuiltIn: true }
         )
@@ -227,6 +218,8 @@ export default async function processScript(
         )
       }
 
+      content.push(scriptContent)
+
       content.push(
         `export default processOption(`,
         `  global.currentOption,`,
@@ -240,7 +233,7 @@ export default async function processScript(
         `  ${stringify(componentGenerics)},`,
         `  ${stringify(genericsInfo)},`,
         `  getWxsMixin({}),`,
-        `  ${app ? `Vue, VueRouter,` : i18n ? 'i18n,' : ''}`,
+        `  ${app ? `Vue, VueRouter` : i18n ? ',i18n' : ''}`,
         `)`
       )
 

@@ -109,7 +109,9 @@ function mpx(options: ResolvedOptions): Plugin {
     },
 
     async resolveId(id, importer) {
-      if (filter(id)) {
+      const { filename, query } = parseRequest(id)
+      if (filter(filename) && !query.mpx && !query.vue) {
+        // app.mpx => ENTRY_HELPER_CODE => app.mpx?mpx=true&app=true
         mpxGlobal.entry = path.resolve(path.dirname(importer || ''), id)
         return ENTRY_HELPER_CODE
       }
@@ -130,7 +132,8 @@ function mpx(options: ResolvedOptions): Plugin {
 
     async transform(code, id) {
       const { filename, query } = parseRequest(id)
-      if (filter(filename) && !query.vue) {
+      if (filter(filename) && query.mpx && !query.vue) {
+        // skip vue file transform
         return await transformMpx(filename, code, query, options, this)
       }
     }

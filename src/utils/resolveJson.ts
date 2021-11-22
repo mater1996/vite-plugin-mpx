@@ -9,13 +9,7 @@ export interface JsonConfig {
   component: boolean
   usingComponents?: Record<string, string>
   componentGenerics?: Record<string, { default?: string }>
-  pages: (
-    | {
-        src: string
-        path: string
-      }
-    | string
-  )[]
+  pages: string[]
   tabBar?: {
     custom?: boolean
     color?: string
@@ -32,6 +26,7 @@ export interface JsonConfig {
     uploadFile: number
     downloadFile: number
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   window: any
   style: string
 }

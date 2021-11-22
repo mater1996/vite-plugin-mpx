@@ -5,6 +5,17 @@
 </template>
 
 <script>
+import { createComponent } from '@mpxjs/core'
+createComponent({
+  data:{
+    index: 0
+  },
+  methods:{
+    handleTap(val){
+      this.index++
+    }
+  }
+})
 console.log('123')
 </script>
 

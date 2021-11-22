@@ -7,7 +7,7 @@ export const ENTRY_HELPER_CODE = 'plugin-mpx:entry-helper'
 export const APP_HELPER_CODE = 'plugin-mpx:app-helper'
 
 export const renderEntryCode = (importer: string): string => `
-import App from ${stringify(addQuery(importer, { app: true }))}
+import App from ${stringify(addQuery(importer, { app: true, mpx: true }))}
 import Vue from 'vue'
 new Vue({
   el: '#app',
@@ -53,7 +53,7 @@ export function renderAppHelpCode(
     `global.__networkTimeout = ${stringify(jsonConfig.networkTimeout)}`,
     `global.__mpxGenericsMap = {}`,
     `global.__style = ${stringify(jsonConfig.style || 'v1')}`,
-    `global.__mpxPageConfig = ${stringify(jsonConfig.window)}`
+    `global.__mpxPageConfig = ${stringify(jsonConfig.window || {})}`
   )
 
   if (i18n) {
@@ -86,8 +86,5 @@ export function renderAppHelpCode(
     )
     content.push(`export { i18n }`)
   }
-
-  content.push(`export { Vue, VueRouter }`)
-
   return content.join('\n')
 }
