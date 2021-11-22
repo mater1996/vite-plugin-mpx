@@ -146,7 +146,7 @@ export default function (options: Options = {}): Plugin[] {
   const plugins = [
     mpx(resolvedOptions), // mpx => vue
     addMode({
-      include: resolvedOptions.projectRoot, // *.* => *.{mode}.*
+      include: [/@mpxjs/, resolvedOptions.projectRoot], // *.* => *.{mode}.*
       mode: resolvedOptions.mode
     }),
     vue({
