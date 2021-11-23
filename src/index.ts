@@ -1,4 +1,3 @@
-import path from 'path'
 import { Plugin, ViteDevServer } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 import { createVuePlugin as vue } from 'vite-plugin-vue2'
@@ -7,16 +6,12 @@ import nodePolyfills from 'rollup-plugin-polyfill-node'
 import commonjs from '@rollup/plugin-commonjs'
 import mpxGlobal from './mpx'
 import transformMpx from './transformer/mpx'
+import transfromTemplate from './transformer/template'
 import addMode, { esbuildAddModePlugin } from './plugins/addModePlugin'
-import {
-  renderAppHelpCode,
-  renderEntryCode,
-  APP_HELPER_CODE,
-  ENTRY_HELPER_CODE
-} from './helper'
+import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
 import parseRequest from './utils/parseRequest'
 import processOptions from './utils/processOptions'
-import { getDescriptor } from './utils/descriptorCache'
+import { getDescriptor, getPrevDescriptor } from './utils/descriptorCache'
 import stringifyObject from './utils/stringifyObject'
 import handleHotUpdate from './handleHotUpdate'
 
@@ -67,7 +62,8 @@ export interface Options {
 export interface ResolvedOptions extends Required<Options> {
   sourceMap?: boolean
   devServer?: ViteDevServer
-  isProduction?: boolean
+  isProduction: boolean
+  root: string
 }
 
 const MpxPluginName = 'vite:mpx'
@@ -78,7 +74,6 @@ function mpx(options: ResolvedOptions): Plugin {
 
   return {
     name: MpxPluginName,
-    enforce: 'pre',
 
     config() {
       return {
@@ -105,36 +100,39 @@ function mpx(options: ResolvedOptions): Plugin {
     },
 
     handleHotUpdate(ctx) {
-      return handleHotUpdate(ctx)
+      return handleHotUpdate(ctx, options)
     },
 
     async resolveId(id, importer) {
-      const { filename, query } = parseRequest(id)
-      if (filter(filename) && !query.mpx && !query.vue) {
-        // app.mpx => ENTRY_HELPER_CODE => app.mpx?mpx=true&app=true
-        mpxGlobal.entry = path.resolve(path.dirname(importer || ''), id)
-        return ENTRY_HELPER_CODE
-      }
-      if (id === APP_HELPER_CODE) {
+      if (id === APP_HELPER_CODE && filter(importer)) {
+        mpxGlobal.entry = importer
         return id
       }
     },
 
     load(id) {
-      if (id === ENTRY_HELPER_CODE) {
-        return renderEntryCode(mpxGlobal.entry)
-      }
-      if (id === APP_HELPER_CODE) {
-        const descriptor = getDescriptor(mpxGlobal.entry)
+      if (id === APP_HELPER_CODE && mpxGlobal.entry) {
+        const { filename } = parseRequest(mpxGlobal.entry)
+        const descriptor = getDescriptor(filename)
         return descriptor && renderAppHelpCode(descriptor, options)
       }
     },
 
     async transform(code, id) {
       const { filename, query } = parseRequest(id)
-      if (filter(filename) && query.mpx && !query.vue) {
-        // skip vue file transform
-        return await transformMpx(filename, code, query, options, this)
+      if (!filter(filename)) return
+      if (!query.vue) {
+        // mpx file => vue file
+        return await transformMpx(code, filename, query, options, this)
+      } else if (getPrevDescriptor(filename)) {
+        // hot reload
+        if (query.type === 'template') {
+          // mpx template => vue template
+          const descriptor = getDescriptor(filename)
+          if (descriptor) {
+            return await transfromTemplate(descriptor, options, this)
+          }
+        }
       }
     }
   }
@@ -162,7 +160,7 @@ export default function (options: Options = {}): Plugin[] {
       })
     }),
     nodePolyfills({
-      include: [/@mpxjs/, /\.mpx/, /plugin-mpx:/, /polyfill-node/], // mpx global polyfill
+      include: [/@mpxjs/, /\.mpx/, /plugin-mpx:/, /polyfill-node/],
       exclude: [/polyfill-nodeglobal/] // ignore polyfill self
     })
   ]

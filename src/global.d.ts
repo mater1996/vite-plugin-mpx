@@ -30,39 +30,39 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
 
   type Mode = 'wx' | 'web' | 'ali' | 'swan'
 
-  export interface Part {
+  export interface SFCBlock {
     tag: 'template' | 'script' | 'style'
+    src?: string
     mode?: Mode
     content: string
     result?: string
     start?: number
-    attrs?: Record<string, unknown>
+    attrs: Record<string, unknown>
     priority?: number
     end?: number
   }
 
-  export interface Template extends Part {
+  export interface Template extends SFCBlock {
     tag: 'template'
-    src?: string
     lang?: string
   }
 
-  export interface Script extends Part {
+  export interface Script extends SFCBlock {
     tag: 'script'
-    src?: string
     map?: RawSourceMap
   }
 
-  export interface JSON extends Part {
+  export interface JSON extends SFCBlock {
     tag: 'script'
     attrs: { type: 'application/json' | 'json' }
     type: 'application/json' | 'json'
     src: string
   }
 
-  export interface Style extends Part {
+  export interface Style extends SFCBlock {
     tag: 'style'
     map?: RawSourceMap
+    scoped?: boolean
   }
 
   export interface CompilerResult {

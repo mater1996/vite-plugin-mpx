@@ -38,7 +38,7 @@ function calculateRootEleChild(arr: []) {
 export default async function processTemplate(
   descriptor: SFCDescriptor,
   options: ResolvedOptions,
-  pluginContext: TransformPluginContext
+  pluginContext?: TransformPluginContext
 ): Promise<ProcessTemplateResult> {
   const {
     mode,
@@ -51,7 +51,7 @@ export default async function processTemplate(
   const { id, filename, jsonConfig, app } = descriptor
   const { usingComponents = {}, componentGenerics = {} } = jsonConfig
   const builtInComponentsMap: ProcessTemplateResult['builtInComponentsMap'] = {}
-  const output = ['/* template */']
+  const output = []
 
   let genericsInfo
 
@@ -72,12 +72,12 @@ export default async function processTemplate(
 
   if (template) {
     if (template.src) {
-      throw new Error(
+      pluginContext?.error(
         `[mpx loader][${filename}]: template content must be inline in .mpx files!`
       )
     }
     if (template.lang) {
-      throw new Error(
+      pluginContext?.error(
         `[mpx loader][ ${filename}]: template lang is not supported in trans web mode temporarily, we will support it in the future!`
       )
     }
@@ -91,12 +91,12 @@ export default async function processTemplate(
           const templateSrcMode = template.mode || srcMode
           const parsed = templateCompiler.parse(template.content, {
             warn: (msg) => {
-              pluginContext.warn(
+              pluginContext?.warn(
                 new Error('[template compiler][' + filename + ']: ' + msg)
               )
             },
             error: (msg) => {
-              throw new Error('[template compiler][' + filename + ']: ' + msg)
+              pluginContext?.error('[template compiler][' + filename + ']: ' + msg)
             },
             usingComponents: Object.keys(usingComponents),
             componentGenerics,

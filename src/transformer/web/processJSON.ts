@@ -89,7 +89,7 @@ export default async function processJSON(
   const processPages = async (pages: JsonConfig['pages'] = []) => {
     for (const page of pages) {
       const pageModule = await pluginContext.resolve(
-        addQuery(page, { mpx: true, page: true }), // skip entry valid
+        addQuery(page, { page: true }), // skip entry valid
         filename
       )
       if (pageModule) {
@@ -121,7 +121,6 @@ export default async function processJSON(
     if (component) {
       const componetModule = await pluginContext.resolve(
         addQuery(component, {
-          mpx: true, // skip entry valid
           component: true
         }),
         filename
@@ -179,6 +178,6 @@ export default async function processJSON(
       tabBarStr
     }
   } catch (error) {
-    throw error
+    pluginContext.error('[mpx loader] process json error')
   }
 }

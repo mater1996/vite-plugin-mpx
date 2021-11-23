@@ -1,6 +1,5 @@
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
 import { ProcessResult } from './process'
-import stringify from '../../utils/stringify'
 import { SFCDescriptor } from '../../compiler'
 
 export type ProcessStylesResult = ProcessResult
@@ -8,7 +7,7 @@ export type ProcessStylesResult = ProcessResult
 export default async function processStyles(
   descriptor: SFCDescriptor
 ): Promise<ProcessStylesResult> {
-  const output = ['/* styles */']
+  const output = []
   const { styles } = descriptor
   if (styles && styles.length) {
     styles.forEach((style) => {
@@ -16,12 +15,6 @@ export default async function processStyles(
         genComponentTag(style, {
           attrs(style) {
             const attrs = Object.assign({}, style.attrs)
-            // if (options.autoScope) attrs.scoped = true
-            attrs.mpxStyleOptions = stringify({
-              // scoped: !!options.autoScope,
-              // query中包含module字符串会被新版vue-cli中的默认rules当做css-module处理
-              mid: descriptor.id
-            })
             return attrs
           }
         })

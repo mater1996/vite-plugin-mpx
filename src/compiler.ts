@@ -3,6 +3,7 @@ import mpxCompiler, {
 } from '@mpxjs/webpack-plugin/lib/template-compiler/compiler'
 import parseComponent from '@mpxjs/webpack-plugin/lib/parser'
 import { JsonConfig } from './utils/resolveJson'
+import { ProcessTemplateResult } from './transformer/web/processTemplate'
 
 export * from '@mpxjs/webpack-plugin/lib/template-compiler/compiler'
 
@@ -15,6 +16,7 @@ export interface SFCDescriptor extends CompilerResult {
   component: boolean
   app: boolean
   jsonConfig: JsonConfig
+  builtInComponentsMap: ProcessTemplateResult['builtInComponentsMap']
   vue?: string
 }
 

@@ -1,5 +1,5 @@
 export interface Mpx {
-  entry: string
+  entry?: string
   pagesMap: Record<string, unknown>
   componentsMap: Record<string, unknown>
   pagesEntryMap: Record<string, unknown>

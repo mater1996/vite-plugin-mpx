@@ -7,9 +7,11 @@ export interface Query {
   index?: number
   lang?: string
   raw?: boolean
+  app?: boolean
   page?: boolean
   component?: boolean
   componentId?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }
 

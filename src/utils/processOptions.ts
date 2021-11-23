@@ -77,6 +77,7 @@ export default function processOptions(rawOptions: Options): ResolvedOptions {
   const options: ResolvedOptions = {
     ...(rawOptions as Required<Options>),
     sourceMap: true,
+    root: '',
     isProduction: process.env.NODE_ENV === 'production'
   }
   return options

@@ -1,7 +1,7 @@
 <template>
   <view>
-     <view style="text-align: center">{{index}}</view>
-    <button bindtap="handleTap">add</button>
+     <view style="text-align: center">{{index}}123</view>
+    <button bindtap="handleTap">add123</button>
   </view>
 </template>
 
@@ -30,9 +30,9 @@ createComponent({
 
 <style scoped>
 div{
-  color: blue;
+  color: red;
 }
 a{
-  color: red
+  color: red;
 }
 </style>

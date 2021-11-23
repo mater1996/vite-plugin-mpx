@@ -1,7 +1,7 @@
 import path from 'path'
 import slash from 'slash'
 import { ResolvedOptions } from '../index'
-import compiler, { SFCDescriptor } from '../compiler'
+import compiler, { SFCBlock, SFCDescriptor } from '../compiler'
 import { Query } from './parseRequest'
 import pathHash from './pageHash'
 
@@ -28,13 +28,22 @@ export function createDescriptor(
   )
   descriptor.id = pathHash(normalizedPath + (isProduction ? code : ''))
   descriptor.filename = filename
-  descriptor.app = query.app ? true : false
   descriptor.page = query.page ? true : false
-  descriptor.component = query.component
-    ? true
-    : !descriptor.app && !descriptor.page
+  descriptor.component = query.component ? true : false
+  descriptor.app = !query.page && !query.component ? true : false
   cache.set(filename, descriptor)
+  normalizePart(descriptor.template)
+  normalizePart(descriptor.script)
+  normalizePart(descriptor.json)
+  normalizePart(descriptor.styles)
   return descriptor
+}
+
+function normalizePart(block: SFCBlock | SFCBlock[] | null) {
+  const blocks = block ? (Array.isArray(block) ? block : [block]) : []
+  blocks.forEach((b) => {
+    b.content = '\n' + b.content.replace(/^\n*/m, '')
+  })
 }
 
 export function getPrevDescriptor(filename: string): SFCDescriptor | undefined {

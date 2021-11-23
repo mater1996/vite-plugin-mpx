@@ -11,8 +11,8 @@ import resolveJson from '../utils/resolveJson'
 import { Query } from '../utils/parseRequest'
 
 export default async function transformMpx(
-  filename: string,
   code: string,
+  filename: string,
   query: Query,
   options: ResolvedOptions,
   pluginContext: TransformPluginContext
@@ -27,6 +27,7 @@ export default async function transformMpx(
       options,
       pluginContext
     )
+    descriptor.builtInComponentsMap = templateResult.builtInComponentsMap
     // console.log('templateResult', templateResult)
     const styleResult = await genStylesCode(descriptor)
     // console.log('styleResult', styleResult)

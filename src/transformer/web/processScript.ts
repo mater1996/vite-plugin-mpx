@@ -55,7 +55,7 @@ export default async function processScript(
     )
   }
 
-  const output = ['/* script */\n']
+  const output = []
 
   let scriptSrcMode = srcMode
   if (descriptor.script) {
@@ -63,7 +63,8 @@ export default async function processScript(
   } else {
     descriptor.script = {
       tag: 'script',
-      content: ''
+      content: '',
+      attrs: {}
     }
     switch (ctorType) {
       case 'app':
