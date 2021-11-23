@@ -1,3 +1,10 @@
+# [1.0.0-alpha.8](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.7...1.0.0-alpha.8) (2021-11-23)
+
+
+### Features
+
+* hotupdate ([664db99](https://github.com/mater1996/vite-plugin-mpx/commit/664db9941a42137f45095989683dd4f4a26cba9b))
+
 # [1.0.0-alpha.7](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.6...1.0.0-alpha.7) (2021-11-22)
 
 
