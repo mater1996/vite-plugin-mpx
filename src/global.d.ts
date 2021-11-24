@@ -44,7 +44,8 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
 
   export interface Template extends SFCBlock {
     tag: 'template'
-    lang?: string
+    lang?: string,
+    vueContent: string
   }
 
   export interface Script extends SFCBlock {
@@ -66,10 +67,10 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
   }
 
   export interface CompilerResult {
-    template: Template | null
-    script: Script | null
-    json: JSON | null
-    styles: Style[] | null
+    template: Template
+    script: Script
+    json: JSON
+    styles: Style[]
     customBlocks: []
   }
 

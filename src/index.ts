@@ -6,12 +6,11 @@ import nodePolyfills from 'rollup-plugin-polyfill-node'
 import commonjs from '@rollup/plugin-commonjs'
 import mpxGlobal from './mpx'
 import transformMpx from './transformer/mpx'
-import transfromTemplate from './transformer/template'
 import addMode, { esbuildAddModePlugin } from './plugins/addModePlugin'
 import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
 import parseRequest from './utils/parseRequest'
 import processOptions from './utils/processOptions'
-import { getDescriptor, getPrevDescriptor } from './utils/descriptorCache'
+import { getDescriptor } from './utils/descriptorCache'
 import stringifyObject from './utils/stringifyObject'
 import handleHotUpdate from './handleHotUpdate'
 
@@ -124,14 +123,12 @@ function mpx(options: ResolvedOptions): Plugin {
       if (!query.vue) {
         // mpx file => vue file
         return await transformMpx(code, filename, query, options, this)
-      } else if (getPrevDescriptor(filename)) {
+      } else {
         // hot reload
         if (query.type === 'template') {
           // mpx template => vue template
           const descriptor = getDescriptor(filename)
-          if (descriptor) {
-            return await transfromTemplate(descriptor, options, this)
-          }
+          return descriptor?.template.vueContent
         }
       }
     }
