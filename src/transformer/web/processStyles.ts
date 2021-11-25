@@ -13,9 +13,8 @@ export default async function processStyles(
     styles.forEach((style) => {
       output.push(
         genComponentTag(style, {
-          attrs(style) {
-            const attrs = Object.assign({}, style.attrs)
-            return attrs
+          content(style) {
+            return (style.vueContent = style.content)
           }
         })
       )

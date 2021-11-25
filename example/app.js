@@ -1,5 +1,5 @@
-import Vue from 'vue'
 import App from './app.mpx'
+import Vue from 'vue'
 
 new Vue({
   el: '#app',

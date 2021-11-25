@@ -5,6 +5,7 @@ import { ResolvedOptions } from './index'
 import processTemplate, {
   ProcessTemplateResult
 } from './transformer/web/processTemplate'
+import processStyles from './transformer/web/processStyles'
 import {
   getDescriptor,
   setPrevDescriptor,
@@ -41,35 +42,44 @@ export default async function handleHotUpdate(
     },
     options
   )
-  descriptor.jsonConfig = prevDescriptor.jsonConfig
-
-  // TODO: optimize get builtInComponentsMap way
-  const templateResult = await processTemplate(descriptor, options)
-  descriptor.builtInComponentsMap = templateResult.builtInComponentsMap
 
   const updateType = []
   const affectedModules = new Set<ModuleNode | undefined>()
+
   const mainModule = modules.find(
     (m) => !/type=/.test(m.url) || /type=script/.test(m.url)
   )
+  const templateModule = modules.find((m) => /type=template/.test(m.url))
 
-  if (
-    !isEqualBlock(descriptor.script, prevDescriptor.script) ||
-    !isEqualBuiltInComponent(
-      descriptor.builtInComponentsMap,
-      prevDescriptor.builtInComponentsMap
-    )
-  ) {
+  if (!isEqualBlock(descriptor.script, prevDescriptor.script)) {
     affectedModules.add(mainModule)
     updateType.push('script')
   }
 
+  let updateJson = false
+  if (!isEqualBlock(descriptor.json, prevDescriptor.json)) {
+    updateJson = true
+    affectedModules.add(mainModule)
+    affectedModules.add(templateModule)
+  }
+
   let needRerender = false
-  const templateModule = modules.find((m) => /type=template/.test(m.url))
 
   if (!isEqualBlock(descriptor.template, prevDescriptor.template)) {
-    affectedModules.add(templateModule)
     needRerender = true
+    affectedModules.add(templateModule)
+    descriptor.jsonConfig = prevDescriptor.jsonConfig
+    // update descriptor template vue content
+    const templateResult = await processTemplate(descriptor, options)
+    descriptor.builtInComponentsMap = templateResult.builtInComponentsMap
+    if (
+      !isEqualBuiltInComponent(
+        descriptor.builtInComponentsMap,
+        prevDescriptor.builtInComponentsMap
+      )
+    ) {
+      affectedModules.add(mainModule)
+    }
   }
 
   let didUpdateStyle = false
@@ -120,7 +130,13 @@ export default async function handleHotUpdate(
   }
 
   if (didUpdateStyle) {
+    // update descriptor styles vue content
+    await processStyles(descriptor)
     updateType.push(`style`)
+  }
+
+  if (updateJson) {
+    updateType.push(`json`)
   }
 
   if (updateType.length) {

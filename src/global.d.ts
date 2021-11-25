@@ -32,44 +32,47 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
 
   export interface SFCBlock {
     tag: 'template' | 'script' | 'style'
-    src?: string
-    mode?: Mode
+    vueContent: string
     content: string
     result?: string
-    start?: number
-    attrs: Record<string, unknown>
+    start: number
+    attrs: { [key: string]: string | true }
     priority?: number
-    end?: number
+    end: number
+    src?: string
+    map?: RawSourceMap
   }
 
   export interface Template extends SFCBlock {
     tag: 'template'
-    lang?: string,
-    vueContent: string
+    type: 'template'
+    lang?: string
+    mode?: Mode
   }
 
   export interface Script extends SFCBlock {
     tag: 'script'
-    map?: RawSourceMap
+    type: 'script'
+    mode?: Mode
   }
 
   export interface JSON extends SFCBlock {
     tag: 'script'
-    attrs: { type: 'application/json' | 'json' }
     type: 'application/json' | 'json'
+    attrs: { type: 'application/json' | 'json' }
     src: string
   }
 
   export interface Style extends SFCBlock {
     tag: 'style'
-    map?: RawSourceMap
+    type: 'style'
     scoped?: boolean
   }
 
   export interface CompilerResult {
-    template: Template
-    script: Script
-    json: JSON
+    template: Template | null
+    script: Script | null
+    json: JSON | null
     styles: Style[]
     customBlocks: []
   }

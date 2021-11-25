@@ -63,8 +63,12 @@ export default async function processScript(
   } else {
     descriptor.script = {
       tag: 'script',
+      type: 'script',
       content: '',
-      attrs: {}
+      attrs: {},
+      vueContent: '',
+      start: 0,
+      end: 0
     }
     switch (ctorType) {
       case 'app':
@@ -238,7 +242,11 @@ export default async function processScript(
         `)`
       )
 
-      return `\n${content.join('\n')}\n`
+      if (descriptor.script) {
+        return (descriptor.script.vueContent = `\n${content.join('\n')}\n`)
+      }
+
+      return ''
     }
   })
 

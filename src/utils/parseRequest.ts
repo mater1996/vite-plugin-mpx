@@ -1,4 +1,4 @@
-import qs from 'querystring'
+import qs from 'qs'
 
 export interface Query {
   vue?: boolean
@@ -20,10 +20,7 @@ export default function parseRequest(id: string): {
   query: Query
 } {
   const [filename, rawQuery] = id.split(`?`, 2)
-  const query = qs.parse(rawQuery) as Query
-  if (query.vue != null) {
-    query.vue = true
-  }
+  const query = qs.parse(rawQuery, { strictNullHandling: true }) as Query
   return {
     filename,
     query

@@ -1,12 +1,16 @@
 import { Plugin, ViteDevServer } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
-import { createVuePlugin as vue } from 'vite-plugin-vue2'
+import { createVuePlugin } from 'vite-plugin-vue2'
 import replace from '@rollup/plugin-replace'
 import nodePolyfills from 'rollup-plugin-polyfill-node'
 import commonjs from '@rollup/plugin-commonjs'
+import { transformMain as vueTransformMain } from 'vite-plugin-vue2/dist/main'
+import { compileSFCTemplate as vueTransformTemplate } from 'vite-plugin-vue2/dist/template'
+import { transformStyle as vueTransformStyle } from 'vite-plugin-vue2/dist/style'
 import mpxGlobal from './mpx'
 import transformMpx from './transformer/mpx'
 import addMode, { esbuildAddModePlugin } from './plugins/addModePlugin'
+import mpxEntryPlugin from './plugins/mpxEntryPlugin'
 import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
 import parseRequest from './utils/parseRequest'
 import processOptions from './utils/processOptions'
@@ -65,14 +69,16 @@ export interface ResolvedOptions extends Required<Options> {
   root: string
 }
 
-const MpxPluginName = 'vite:mpx'
-
 function mpx(options: ResolvedOptions): Plugin {
   const { include = /\.mpx$/, exclude } = options
   const filter = createFilter(include, exclude)
 
+  const mpxVuePlugin = createVuePlugin({
+    include: /\.mpx/
+  })
+
   return {
-    name: MpxPluginName,
+    name: 'vite:mpx',
 
     config() {
       return {
@@ -89,6 +95,10 @@ function mpx(options: ResolvedOptions): Plugin {
       }
     },
 
+    configureServer(server) {
+      options.devServer = server
+    },
+
     configResolved(config) {
       Object.assign(options, {
         ...options,
@@ -102,11 +112,11 @@ function mpx(options: ResolvedOptions): Plugin {
       return handleHotUpdate(ctx, options)
     },
 
-    async resolveId(id, importer) {
-      if (id === APP_HELPER_CODE && filter(importer)) {
-        mpxGlobal.entry = importer
+    async resolveId(id, ...args) {
+      if (id === APP_HELPER_CODE) {
         return id
       }
+      return mpxVuePlugin.resolveId?.call(this, id, ...args)
     },
 
     load(id) {
@@ -115,20 +125,66 @@ function mpx(options: ResolvedOptions): Plugin {
         const descriptor = getDescriptor(filename)
         return descriptor && renderAppHelpCode(descriptor, options)
       }
+      const { filename, query } = parseRequest(id)
+      if (query.mpx !== undefined) {
+        const descriptor = getDescriptor(filename)
+        if (descriptor) {
+          let block
+          if (query.type === 'template') {
+            block = descriptor.template
+          } else if (query.type === 'style') {
+            block = descriptor.styles[Number(query.index)]
+          }
+          if (block) {
+            return block.vueContent
+          }
+        }
+      }
+      return mpxVuePlugin.load?.call(this, id)
     },
 
     async transform(code, id) {
       const { filename, query } = parseRequest(id)
       if (!filter(filename)) return
-      if (!query.vue) {
+      if (query.mpx === undefined) {
         // mpx file => vue file
-        return await transformMpx(code, filename, query, options, this)
+        const vueFile = await transformMpx(code, filename, query, options, this)
+        const vueCode = await vueTransformMain(
+          vueFile?.code || '',
+          filename,
+          options,
+          this
+        )
+        // replace "*.mpx?vue" to "*.mpx?mpx"
+        // this way mpx does not enter the logic of the Vueplugin
+        vueCode.code = vueCode.code.replace(/(\.mpx)(\?vue)/g, `$1?mpx`)
+        return vueCode
       } else {
-        // hot reload
         if (query.type === 'template') {
           // mpx template => vue template
           const descriptor = getDescriptor(filename)
-          return descriptor?.template.vueContent
+          if (descriptor && descriptor.template) {
+            return await vueTransformTemplate(
+              code,
+              descriptor.template,
+              filename,
+              options,
+              this
+            )
+          }
+        }
+        if (query.type === 'style') {
+          // mpx style => vue style
+          const descriptor = getDescriptor(filename)
+          if (descriptor) {
+            return await vueTransformStyle(
+              code,
+              filename,
+              descriptor,
+              Number(query.index),
+              this
+            )
+          }
         }
       }
     }
@@ -144,9 +200,8 @@ export default function (options: Options = {}): Plugin[] {
       include: [/@mpxjs/, resolvedOptions.projectRoot], // *.* => *.{mode}.*
       mode: resolvedOptions.mode
     }),
-    vue({
-      include: /\.vue|\.mpx/ // mpx => vue transform
-    }),
+    mpxEntryPlugin(),
+    createVuePlugin(),
     replace({
       preventAssignment: true,
       values: stringifyObject({
