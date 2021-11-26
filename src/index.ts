@@ -4,19 +4,18 @@ import { createVuePlugin } from 'vite-plugin-vue2'
 import replace from '@rollup/plugin-replace'
 import nodePolyfills from 'rollup-plugin-polyfill-node'
 import commonjs from '@rollup/plugin-commonjs'
-import { transformMain as vueTransformMain } from 'vite-plugin-vue2/dist/main'
-import { compileSFCTemplate as vueTransformTemplate } from 'vite-plugin-vue2/dist/template'
-import { transformStyle as vueTransformStyle } from 'vite-plugin-vue2/dist/style'
 import mpxGlobal from './mpx'
-import transformMpx from './transformer/mpx'
+import transformMain from './transformer/main'
+import transformTemplate from './transformer/template'
+import transformStyle from './transformer/style'
+import handleHotUpdate from './handleHotUpdate'
+import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
 import addMode, { esbuildAddModePlugin } from './plugins/addModePlugin'
 import mpxEntryPlugin from './plugins/mpxEntryPlugin'
-import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
 import parseRequest from './utils/parseRequest'
 import processOptions from './utils/processOptions'
 import { getDescriptor } from './utils/descriptorCache'
 import stringifyObject from './utils/stringifyObject'
-import handleHotUpdate from './handleHotUpdate'
 
 export type Mode = 'wx' | 'web' | 'ali' | 'swan'
 
@@ -148,26 +147,16 @@ function mpx(options: ResolvedOptions): Plugin {
       if (!filter(filename)) return
       if (query.mpx === undefined) {
         // mpx file => vue file
-        const vueFile = await transformMpx(code, filename, query, options, this)
-        const vueCode = await vueTransformMain(
-          vueFile?.code || '',
-          filename,
-          options,
-          this
-        )
-        // replace "*.mpx?vue" to "*.mpx?mpx"
-        // this way mpx does not enter the logic of the Vueplugin
-        vueCode.code = vueCode.code.replace(/(\.mpx)(\?vue)/g, `$1?mpx`)
-        return vueCode
+        return await transformMain(code, filename, query, options, this)
       } else {
         if (query.type === 'template') {
           // mpx template => vue template
           const descriptor = getDescriptor(filename)
-          if (descriptor && descriptor.template) {
-            return await vueTransformTemplate(
+          if (descriptor) {
+            return await transformTemplate(
               code,
-              descriptor.template,
               filename,
+              descriptor,
               options,
               this
             )
@@ -177,7 +166,7 @@ function mpx(options: ResolvedOptions): Plugin {
           // mpx style => vue style
           const descriptor = getDescriptor(filename)
           if (descriptor) {
-            return await vueTransformStyle(
+            return await transformStyle(
               code,
               filename,
               descriptor,

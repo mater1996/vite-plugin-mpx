@@ -1,5 +1,5 @@
-import { TransformPluginContext } from 'rollup'
-import { TransformResult } from 'vite'
+import { TransformPluginContext, TransformResult } from 'rollup'
+import { transformMain as vueTransformMain } from 'vite-plugin-vue2/dist/main'
 import processTemplate from './web/processTemplate'
 import processJSON from './web/processJSON'
 import processStyles from './web/processStyles'
@@ -34,14 +34,17 @@ export default async function transformMpx(
       styleResult.output,
       scriptResult.output
     ].join('\n')
+    const vueCode = await vueTransformMain(
+      result,
+      filename,
+      options,
+      pluginContext
+    )
+    // replace "*.mpx?vue" to "*.mpx?mpx"
+    // this way mpx does not enter the logic of the Vueplugin
+    vueCode.code = vueCode.code.replace(/(\.mpx)(\?vue)/g, `$1?mpx`)
     // console.log('descriptor', descriptor)
-    return {
-      code: result,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      map: (descriptor.script?.map as any) || {
-        mappings: ''
-      }
-    }
+    return vueCode
   }
 }
 
