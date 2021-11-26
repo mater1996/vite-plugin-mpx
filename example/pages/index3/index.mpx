@@ -1,34 +1,34 @@
 <template>
-<view>
+  <view>
     55555555
-</view>
+  </view>
 </template>
 
 <script>
-import { createComponent } from '@mpxjs/core'
-createComponent({
-  data:{
-    index: 0
-  },
-  methods:{
-    handleTap(val){
-      this.index++
+  import { createComponent } from '@mpxjs/core'
+  createComponent({
+    data: {
+      index: 0
+    },
+    methods: {
+      handleTap(val) {
+        this.index++
+      }
     }
-  }
-})
-console.log('123')
+  })
+  console.log('123')
 </script>
 
 <script type="application/json">
-{
-  "usingComponents": {
-    "intro": "../../components/component.mpx"
+  {
+    "usingComponents": {
+      "intro": "../../components/component.mpx"
+    }
   }
-}
 </script>
 
 <style>
-.a{
-  color: red;
-}
+  .a {
+    color: red;
+  }
 </style>

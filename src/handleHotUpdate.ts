@@ -1,6 +1,6 @@
 import { HmrContext, ModuleNode } from 'vite'
 import _debug from 'debug'
-import { SFCBlock, SFCDescriptor } from './compiler'
+import { SFCBlock } from './compiler'
 import { ResolvedOptions } from './index'
 import processTemplate from './transformer/web/processTemplate'
 import processStyles from './transformer/web/processStyles'
@@ -49,12 +49,22 @@ export default async function handleHotUpdate(
   )
   const templateModule = modules.find((m) => /type=template/.test(m.url))
 
-  if (!isEqualBlock(descriptor.json, prevDescriptor.json)) {
+  if (
+    !isEqualBlock(descriptor.json, prevDescriptor.json) ||
+    descriptor.json?.src !== prevDescriptor.json?.src
+  ) {
     server.ws.send({
       type: 'full-reload',
       path: '*'
     })
     return []
+  } else {
+    // reused jsonConfig and processJson's data
+    descriptor.jsonConfig = prevDescriptor.jsonConfig
+    descriptor.localPagesMap = prevDescriptor.localPagesMap
+    descriptor.localComponentsMap = prevDescriptor.localComponentsMap
+    descriptor.tabBarMap = prevDescriptor.tabBarMap
+    descriptor.tabBarStr = prevDescriptor.tabBarStr
   }
 
   if (!isEqualBlock(descriptor.script, prevDescriptor.script)) {
@@ -65,17 +75,22 @@ export default async function handleHotUpdate(
   let needRerender = false
   if (!isEqualBlock(descriptor.template, prevDescriptor.template)) {
     needRerender = true
-    descriptor.jsonConfig = prevDescriptor.jsonConfig // jsonConfig not change
     await processTemplate(descriptor, options) // update descriptor template vue content
     affectedModules.add(templateModule)
     if (
-      !isEqualBuiltInComponent(
+      !isEqualObject(
         descriptor.builtInComponentsMap,
         prevDescriptor.builtInComponentsMap
       )
     ) {
       affectedModules.add(mainModule)
     }
+  } else {
+    if (descriptor.template && prevDescriptor.template) {
+      descriptor.template.vueContent = prevDescriptor.template.vueContent
+    }
+    descriptor.builtInComponentsMap = prevDescriptor.builtInComponentsMap
+    descriptor.genericsInfo = prevDescriptor.genericsInfo
   }
 
   let didUpdateStyle = false
@@ -135,21 +150,19 @@ export default async function handleHotUpdate(
     debug(`[mpx:update(${updateType.join('&')})] ${file}`)
   }
 
-  console.log(`[mpx:update(${updateType.join('&')})] ${file}`, affectedModules)
-
   return [...affectedModules].filter(Boolean) as ModuleNode[]
 }
 
-export function isEqualBuiltInComponent(
-  a: SFCDescriptor['builtInComponentsMap'],
-  b: SFCDescriptor['builtInComponentsMap']
+export function isEqualObject(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>
 ): boolean {
   const keysA = Object.keys(a)
   const keysB = Object.keys(b)
   if (keysA.length !== keysB.length) {
     return false
   }
-  return keysA.every((key) => b[key])
+  return keysA.every((key) => a[key] === b[key])
 }
 
 export function isEqualBlock(a: SFCBlock | null, b: SFCBlock | null): boolean {

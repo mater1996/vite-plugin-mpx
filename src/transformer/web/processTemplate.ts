@@ -63,6 +63,7 @@ export default async function processTemplate(
         `[mpx loader][${filename}]: template content must be inline in .mpx files!`
       )
     }
+
     if (template.lang) {
       pluginContext?.error(
         `[mpx loader][ ${filename}]: template lang is not supported in trans web mode temporarily, we will support it in the future!`
@@ -71,9 +72,10 @@ export default async function processTemplate(
 
     output.push(
       genComponentTag(template, (template) => {
-        if (app && descriptor.template) {
-          descriptor.template.vueContent = template.content
+        if (app) {
+          template.vueContent = template.content
         }
+
         if (template.content) {
           const templateSrcMode = template.mode || srcMode
           const parsed = templateCompiler.parse(template.content, {
@@ -138,16 +140,13 @@ export default async function processTemplate(
             }
           }
 
-          if (descriptor.template) {
-            descriptor.template.vueContent = templateCompiler.serialize(
-              parsed.root
-            )
-          }
+          template.vueContent = templateCompiler.serialize(parsed.root)
         }
 
         descriptor.builtInComponentsMap = builtInComponentsMap
         descriptor.genericsInfo = genericsInfo
-        return descriptor.template?.vueContent || ''
+
+        return template.vueContent
       })
     )
 
