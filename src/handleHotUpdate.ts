@@ -1,10 +1,8 @@
 import { HmrContext, ModuleNode } from 'vite'
 import _debug from 'debug'
-import { SFCBlock } from './compiler'
+import { SFCBlock, SFCDescriptor } from './compiler'
 import { ResolvedOptions } from './index'
-import processTemplate, {
-  ProcessTemplateResult
-} from './transformer/web/processTemplate'
+import processTemplate from './transformer/web/processTemplate'
 import processStyles from './transformer/web/processStyles'
 import {
   getDescriptor,
@@ -23,7 +21,7 @@ const debug = _debug('vite:hmr')
  * 4. remove scriptSetup
  */
 export default async function handleHotUpdate(
-  { modules, file, read }: HmrContext,
+  { modules, file, read, server }: HmrContext,
   options: ResolvedOptions
 ): Promise<ModuleNode[] | undefined> {
   const prevDescriptor = getDescriptor(file)
@@ -51,27 +49,25 @@ export default async function handleHotUpdate(
   )
   const templateModule = modules.find((m) => /type=template/.test(m.url))
 
+  if (!isEqualBlock(descriptor.json, prevDescriptor.json)) {
+    server.ws.send({
+      type: 'full-reload',
+      path: '*'
+    })
+    return []
+  }
+
   if (!isEqualBlock(descriptor.script, prevDescriptor.script)) {
     affectedModules.add(mainModule)
     updateType.push('script')
   }
 
-  let updateJson = false
-  if (!isEqualBlock(descriptor.json, prevDescriptor.json)) {
-    updateJson = true
-    affectedModules.add(mainModule)
-    affectedModules.add(templateModule)
-  }
-
   let needRerender = false
-
   if (!isEqualBlock(descriptor.template, prevDescriptor.template)) {
     needRerender = true
+    descriptor.jsonConfig = prevDescriptor.jsonConfig // jsonConfig not change
+    await processTemplate(descriptor, options) // update descriptor template vue content
     affectedModules.add(templateModule)
-    descriptor.jsonConfig = prevDescriptor.jsonConfig
-    // update descriptor template vue content
-    const templateResult = await processTemplate(descriptor, options)
-    descriptor.builtInComponentsMap = templateResult.builtInComponentsMap
     if (
       !isEqualBuiltInComponent(
         descriptor.builtInComponentsMap,
@@ -135,20 +131,18 @@ export default async function handleHotUpdate(
     updateType.push(`style`)
   }
 
-  if (updateJson) {
-    updateType.push(`json`)
-  }
-
   if (updateType.length) {
     debug(`[mpx:update(${updateType.join('&')})] ${file}`)
   }
+
+  console.log(`[mpx:update(${updateType.join('&')})] ${file}`, affectedModules)
 
   return [...affectedModules].filter(Boolean) as ModuleNode[]
 }
 
 export function isEqualBuiltInComponent(
-  a: ProcessTemplateResult['builtInComponentsMap'],
-  b: ProcessTemplateResult['builtInComponentsMap']
+  a: SFCDescriptor['builtInComponentsMap'],
+  b: SFCDescriptor['builtInComponentsMap']
 ): boolean {
   const keysA = Object.keys(a)
   const keysB = Object.keys(b)

@@ -1,13 +1,13 @@
 <template>
   <view>
-     <view style="text-align: center">{{index}}123</view>
-    <button bindtap="handleTap">13331133</button>
+     <view style="text-align: center">{{index}}12313112312</view>
+    <button bindtap="handleTap">add1231231123321312312</button>
+    <intro></intro>12321123123
   </view>
 </template>
 
 <script>
 import { createComponent } from '@mpxjs/core'
-
 createComponent({
   data:{
     index: 0

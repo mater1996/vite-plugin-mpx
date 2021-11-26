@@ -31,6 +31,40 @@ export function createDescriptor(
   descriptor.page = query.page ? true : false
   descriptor.component = query.component ? true : false
   descriptor.app = !query.page && !query.component ? true : false
+  if (descriptor.app) {
+    descriptor.template = Object.assign({}, descriptor.template, {
+      tag: 'template',
+      content:
+        '<div class="app"><router-view class="page"></router-view></div>',
+      attrs: {}
+    })
+  }
+  if (!descriptor.script) {
+    descriptor.script = {
+      tag: 'script',
+      type: 'script',
+      content: '',
+      attrs: {},
+      vueContent: '',
+      start: 0,
+      end: 0
+    }
+    if (descriptor.app) {
+      descriptor.script.content = `
+  import { createApp } from "@mpxjs/core"
+  createApp({})`
+    }
+    if (descriptor.page) {
+      descriptor.script.content = `
+  import { createPage } from "@mpxjs/core"
+  createPage({})`
+    }
+    if (descriptor.component) {
+      descriptor.script.content = `
+  import { createComponent } from "@mpxjs/core"
+  createComponent({})`
+    }
+  }
   cache.set(filename, descriptor)
   normalizePart(descriptor.template)
   normalizePart(descriptor.script)

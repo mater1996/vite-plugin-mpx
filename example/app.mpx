@@ -1,6 +1,5 @@
 <script>
 import mpx, { createApp } from '@mpxjs/core'
-
 createApp({
   onLaunch (options) {
 

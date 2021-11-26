@@ -1,8 +1,6 @@
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
 import { TransformPluginContext } from 'rollup'
 import { ProcessResult } from './process'
-import { ProcessJsonResult } from './processJSON'
-import { ProcessTemplateResult } from './processTemplate'
 import { ResolvedOptions } from '../../index'
 import { SFCDescriptor } from '../../compiler'
 import { APP_HELPER_CODE } from '../../helper'
@@ -24,9 +22,7 @@ export type ProcessScriptResult = ProcessResult
 export default async function processScript(
   descriptor: SFCDescriptor,
   options: ResolvedOptions,
-  pluginContext: TransformPluginContext,
-  templateResult: ProcessTemplateResult,
-  jsonResult: ProcessJsonResult
+  pluginContext: TransformPluginContext
 ): Promise<ProcessScriptResult> {
   const { id: componentId, app, page, jsonConfig, filename } = descriptor
   const ctorType = app ? 'app' : page ? 'page' : 'component'
@@ -41,13 +37,12 @@ export default async function processScript(
   const tabBar = jsonConfig.tabBar
   const componentGenerics = jsonConfig.componentGenerics
 
-  const tabBarMap = jsonResult.tabBarMap
-  const tabBarStr = jsonResult.tabBarStr
-  const localPagesMap = jsonResult.localPagesMap
-  const localComponentsMap = jsonResult.localComponentsMap
-
-  const genericsInfo = templateResult.genericsInfo
-  const builtInComponentsMap = templateResult.builtInComponentsMap
+  const tabBarMap = descriptor.tabBarMap
+  const tabBarStr = descriptor.tabBarStr
+  const localPagesMap = descriptor.localPagesMap
+  const localComponentsMap = descriptor.localComponentsMap
+  const builtInComponentsMap = descriptor.builtInComponentsMap
+  const genericsInfo = descriptor.genericsInfo
 
   const emitWarning = (msg: string) => {
     pluginContext.warn(
@@ -60,36 +55,8 @@ export default async function processScript(
   let scriptSrcMode = srcMode
   if (descriptor.script) {
     scriptSrcMode = descriptor.script.mode || scriptSrcMode
-  } else {
-    descriptor.script = {
-      tag: 'script',
-      type: 'script',
-      content: '',
-      attrs: {},
-      vueContent: '',
-      start: 0,
-      end: 0
-    }
-    switch (ctorType) {
-      case 'app':
-        descriptor.script.content = `
-          import { createApp } from "@mpxjs/core"
-          createApp({})
-        `
-        break
-      case 'page':
-        descriptor.script.content = `
-          import { createPage } from "@mpxjs/core"
-          createPage({})
-        `
-        break
-      case 'component':
-        descriptor.script.content = `
-          import { createComponent } from "@mpxjs/core"
-          createComponent({})
-        `
-    }
   }
+
   const scriptContent = await resolveScriptFile(
     descriptor,
     options,

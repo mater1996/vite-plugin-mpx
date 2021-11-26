@@ -1,49 +1,32 @@
 import path from 'path'
 import { TransformPluginContext } from 'rollup'
-import { ProcessResult } from './process'
 import { ResolvedOptions } from '../../index'
 import { SFCDescriptor } from '../../compiler'
 import mpx from '../../mpx'
-import { JsonConfig } from '../../utils/resolveJson'
+import resolveJson, { JsonConfig } from '../../utils/resolveJson'
 import parseRequest from '../../utils/parseRequest'
 import pathHash from '../../utils/pageHash'
 import resolveModuleContext from '../../utils/resolveModuleContext'
 import addQuery from '../../utils/addQuery'
 import normalizePath from '../../utils/normalizePath'
 
-export interface ProcessJsonResult extends ProcessResult {
-  localPagesMap: Record<
-    string,
-    {
-      resource: string
-      async: boolean
-      isFirst: boolean
-    }
-  >
-  localComponentsMap: Record<
-    string,
-    {
-      resource: string
-      async: boolean
-    }
-  >
-  tabBarMap: Record<string, unknown>
-  tabBarStr: string
-}
-
 export default async function processJSON(
   descriptor: SFCDescriptor,
   options: ResolvedOptions,
   pluginContext: TransformPluginContext
-): Promise<ProcessJsonResult> {
-  const { filename, jsonConfig } = descriptor
+): Promise<void> {
+  const jsonConfig = (descriptor.jsonConfig = await resolveJson(
+    descriptor,
+    options,
+    pluginContext
+  ))
+  const { filename } = descriptor
   const { pagesMap, componentsMap, pagesEntryMap } = mpx
-  const localPagesMap: ProcessJsonResult['localPagesMap'] = {}
-  const localComponentsMap: ProcessJsonResult['localComponentsMap'] = {}
+  const localPagesMap: SFCDescriptor['localPagesMap'] = {}
+  const localComponentsMap: SFCDescriptor['localComponentsMap'] = {}
 
   const context = resolveModuleContext(descriptor.filename)
 
-  const output = '/* json */\n'
   let tabBarMap: Record<string, unknown> = {}
   let tabBarStr = ''
 
@@ -170,13 +153,12 @@ export default async function processJSON(
     await processComponents(jsonConfig.usingComponents)
     await processGenerics(jsonConfig.componentGenerics)
     await processTabBar(jsonConfig.tabBar)
-    return {
-      output,
-      localPagesMap,
-      localComponentsMap,
-      tabBarMap,
-      tabBarStr
-    }
+
+    descriptor.localPagesMap = localPagesMap
+    descriptor.localComponentsMap = localComponentsMap
+    descriptor.tabBarMap = tabBarMap
+    descriptor.tabBarStr = tabBarStr
+
   } catch (error) {
     pluginContext.error('[mpx loader] process json error')
   }

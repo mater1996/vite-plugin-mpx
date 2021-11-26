@@ -3,7 +3,6 @@ import mpxCompiler, {
 } from '@mpxjs/webpack-plugin/lib/template-compiler/compiler'
 import parseComponent from '@mpxjs/webpack-plugin/lib/parser'
 import { JsonConfig } from './utils/resolveJson'
-import { ProcessTemplateResult } from './transformer/web/processTemplate'
 
 export * from '@mpxjs/webpack-plugin/lib/template-compiler/compiler'
 
@@ -16,8 +15,30 @@ export interface SFCDescriptor extends CompilerResult {
   component: boolean
   app: boolean
   jsonConfig: JsonConfig
-  builtInComponentsMap: ProcessTemplateResult['builtInComponentsMap']
-  vue?: string
+  builtInComponentsMap: Record<
+    string,
+    {
+      resource: string
+    }
+  >
+  genericsInfo?: Record<string, unknown>
+  localPagesMap: Record<
+    string,
+    {
+      resource: string
+      async: boolean
+      isFirst: boolean
+    }
+  >
+  localComponentsMap: Record<
+    string,
+    {
+      resource: string
+      async: boolean
+    }
+  >
+  tabBarMap: Record<string, unknown>
+  tabBarStr: string
 }
 
 interface Compiler {
@@ -32,9 +53,9 @@ interface Compiler {
 const compiler: Compiler = {
   parseComponent(template, options) {
     const descriptor = parseComponent(template, options) as SFCDescriptor
-    if(descriptor.script && descriptor.script.map){
+    if (descriptor.script && descriptor.script.map) {
       const sources = descriptor.script.map.sources || []
-      descriptor.script.map.sources = sources.map(v=> v.split('?')[0])
+      descriptor.script.map.sources = sources.map((v) => v.split('?')[0])
     }
     return descriptor
   },

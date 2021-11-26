@@ -8,15 +8,7 @@ import { resolveMpxRuntime } from '../../utils/resolveMpx'
 
 const mpxKeepAlivePath = resolveMpxRuntime('components/web/mpx-keep-alive.vue')
 
-export interface ProcessTemplateResult extends ProcessResult {
-  builtInComponentsMap: Record<
-    string,
-    {
-      resource: string
-    }
-  >
-  genericsInfo?: Record<string, unknown>
-}
+export type ProcessTemplateResult = ProcessResult
 
 function calculateRootEleChild(arr: []) {
   if (!arr) {
@@ -50,10 +42,9 @@ export default async function processTemplate(
   } = options
   const { id, filename, jsonConfig, app } = descriptor
   const { usingComponents = {}, componentGenerics = {} } = jsonConfig
-  const builtInComponentsMap: ProcessTemplateResult['builtInComponentsMap'] = {}
+  const builtInComponentsMap: SFCDescriptor['builtInComponentsMap'] = {}
+  let genericsInfo: SFCDescriptor['genericsInfo']
   const output = []
-
-  let genericsInfo
 
   function addBuildComponent(name: string, resource: string) {
     builtInComponentsMap[name] = builtInComponentsMap[name] || {}
@@ -61,11 +52,6 @@ export default async function processTemplate(
   }
 
   if (app) {
-    descriptor.template = Object.assign({}, descriptor.template, {
-      tag: 'template',
-      content: '<div class="app"><router-view class="page"></router-view></div>',
-      attrs: {}
-    })
     addBuildComponent('mpx-keep-alive', mpxKeepAlivePath)
   }
 
@@ -86,7 +72,7 @@ export default async function processTemplate(
     output.push(
       genComponentTag(template, (template) => {
         if (app && descriptor.template) {
-          return (descriptor.template.vueContent = template.content)
+          descriptor.template.vueContent = template.content
         }
         if (template.content) {
           const templateSrcMode = template.mode || srcMode
@@ -120,6 +106,7 @@ export default async function processTemplate(
             globalComponents: []
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           }) as any
+
           // 暂时不处理wxsModule
           // if (parsed.meta.wxsModuleMap) {
           //   wxsModuleMap = parsed.meta.wxsModuleMap
@@ -130,6 +117,7 @@ export default async function processTemplate(
           //       parsed.meta.wxsContentMap[module]
           //   }
           // }
+
           if (parsed.meta.builtInComponentsMap) {
             Object.entries(parsed.meta.builtInComponentsMap).forEach(
               ([name, resource]) => {
@@ -137,9 +125,11 @@ export default async function processTemplate(
               }
             )
           }
+
           if (parsed.meta.genericsInfo) {
             genericsInfo = parsed.meta.genericsInfo
           }
+
           // 输出H5有多个root element时, 使用div标签包裹
           if (parsed.root.tag === 'temp-node') {
             const childLen = calculateRootEleChild(parsed.root.children)
@@ -147,20 +137,24 @@ export default async function processTemplate(
               parsed.root.tag = 'div'
             }
           }
+
           if (descriptor.template) {
-            return (descriptor.template.vueContent = templateCompiler.serialize(
+            descriptor.template.vueContent = templateCompiler.serialize(
               parsed.root
-            ))
+            )
           }
         }
-        return ''
+
+        descriptor.builtInComponentsMap = builtInComponentsMap
+        descriptor.genericsInfo = genericsInfo
+        return descriptor.template?.vueContent || ''
       })
     )
+
     output.push('\n')
   }
+
   return {
-    output: output.join('\n'),
-    builtInComponentsMap,
-    genericsInfo
+    output: output.join('\n')
   }
 }
