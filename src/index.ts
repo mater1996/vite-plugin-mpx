@@ -204,7 +204,9 @@ export default function mpx(options: Options = {}): Plugin[] {
       include: [/@mpxjs/, resolvedOptions.projectRoot],
       extensions: customExtensions
     }),
+    // ensure mpx entry point
     mpxEntryPlugin(),
+    // vue support for mpxjs/rumtime
     createVuePlugin(),
     replace({
       preventAssignment: true,
