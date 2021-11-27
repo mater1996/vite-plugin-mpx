@@ -1,4 +1,4 @@
-import { Plugin, ViteDevServer } from 'vite'
+import { Plugin, UserConfig, ViteDevServer } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 import { createVuePlugin } from 'vite-plugin-vue2'
 import replace from '@rollup/plugin-replace'
@@ -10,7 +10,9 @@ import transformTemplate from './transformer/template'
 import transformStyle from './transformer/style'
 import handleHotUpdate from './handleHotUpdate'
 import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
-import addMode, { esbuildAddModePlugin } from './plugins/addModePlugin'
+import addExtensionsPlugin, {
+  esbuildAddExtensionsPlugin
+} from './plugins/addExtensionsPlugin'
 import mpxEntryPlugin from './plugins/mpxEntryPlugin'
 import parseRequest from './utils/parseRequest'
 import processOptions from './utils/processOptions'
@@ -68,7 +70,16 @@ export interface ResolvedOptions extends Required<Options> {
   root: string
 }
 
-function mpx(options: ResolvedOptions): Plugin {
+function genCustomExtensions(mode: string, env: string) {
+  const res: string[] = [mode]
+  if (env) res.push(env, `${mode}.${env}`, `${env}.${mode}`)
+  return res
+}
+
+function createMpxPlugin(
+  options: ResolvedOptions,
+  config?: UserConfig
+): Plugin {
   const { include = /\.mpx$/, exclude } = options
   const filter = createFilter(include, exclude)
 
@@ -80,18 +91,7 @@ function mpx(options: ResolvedOptions): Plugin {
     name: 'vite:mpx',
 
     config() {
-      return {
-        optimizeDeps: {
-          esbuildOptions: {
-            plugins: [
-              esbuildAddModePlugin({
-                include: /@mpxjs/, // prebuild for addMode
-                mode: options.mode
-              })
-            ]
-          }
-        }
-      }
+      return config
     },
 
     configureServer(server) {
@@ -180,14 +180,29 @@ function mpx(options: ResolvedOptions): Plugin {
   }
 }
 
-export default function (options: Options = {}): Plugin[] {
+export default function mpx(options: Options = {}): Plugin[] {
   const resolvedOptions = processOptions({ ...options })
+  const { mode, env } = resolvedOptions
+  const customExtensions = genCustomExtensions(mode, env)
 
   const plugins = [
-    mpx(resolvedOptions), // mpx => vue
-    addMode({
-      include: [/@mpxjs/, resolvedOptions.projectRoot], // *.* => *.{mode}.*
-      mode: resolvedOptions.mode
+    // mpx => vue
+    createMpxPlugin(resolvedOptions, {
+      optimizeDeps: {
+        esbuildOptions: {
+          plugins: [
+            esbuildAddExtensionsPlugin({
+              include: /@mpxjs/, // prebuild for addMode
+              extensions: customExtensions
+            })
+          ]
+        }
+      }
+    }),
+    // *.* => *.{extension}.*
+    addExtensionsPlugin({
+      include: [/@mpxjs/, resolvedOptions.projectRoot],
+      extensions: customExtensions
     }),
     mpxEntryPlugin(),
     createVuePlugin(),
