@@ -8,8 +8,9 @@ import { ResolvedOptions } from '../index'
 import { SFCDescriptor } from '../compiler'
 import { createDescriptor } from '../utils/descriptorCache'
 import { Query } from '../utils/parseRequest'
+import { ProcessResult } from './web/process'
 
-export default async function transformMpx(
+export default async function transformMain(
   code: string,
   filename: string,
   query: Query,
@@ -19,21 +20,19 @@ export default async function transformMpx(
   const descriptor = createDescriptor(filename, code, query, options)
   if (descriptor) {
     await processJSON(descriptor, options, pluginContext)
+    // generate <template></template>
     const templateResult = await genTemplateCode(
       descriptor,
       options,
       pluginContext
     )
-    // console.log('templateResult', templateResult)
+    // generate <style></style>
     const styleResult = await genStylesCode(descriptor)
-    // console.log('styleResult', styleResult)
+    // generate <script></script>
     const scriptResult = await genScriptCode(descriptor, options, pluginContext)
-    // console.log('scriptResult', scriptResult)
-    const result = [
-      templateResult.output,
-      styleResult.output,
-      scriptResult.output
-    ].join('\n')
+    // generate vue sfc
+    const result = genResult(templateResult, styleResult, scriptResult)
+    // transform vue
     const vueCode = await vueTransformMain(
       result,
       filename,
@@ -43,9 +42,12 @@ export default async function transformMpx(
     // replace "*.mpx?vue" to "*.mpx?mpx"
     // this way mpx does not enter the logic of the Vueplugin
     vueCode.code = vueCode.code.replace(/(\.mpx)(\?vue)/g, `$1?mpx`)
-    // console.log('descriptor', descriptor)
     return vueCode
   }
+}
+
+function genResult(...args: ProcessResult[]) {
+  return args.map((v) => v.output).join('\n')
 }
 
 async function genTemplateCode(

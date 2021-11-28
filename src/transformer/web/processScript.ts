@@ -27,7 +27,6 @@ export default async function processScript(
   const { id: componentId, app, page, jsonConfig, filename } = descriptor
   const ctorType = app ? 'app' : page ? 'page' : 'component'
 
-  const srcMode = options.srcMode
   const isProduction = options.isProduction
 
   const i18n = options.i18n
@@ -51,11 +50,6 @@ export default async function processScript(
   }
 
   const output = []
-
-  let scriptSrcMode = srcMode
-  if (descriptor.script) {
-    scriptSrcMode = descriptor.script.mode || scriptSrcMode
-  }
 
   const scriptContent = await resolveScriptFile(
     descriptor,
@@ -101,12 +95,6 @@ export default async function processScript(
       content.push(
         `import processOption, { getComponent, getWxsMixin } from "${optionProcessorPath}"`
       )
-
-      content.push(`global.currentSrcMode = ${stringify(scriptSrcMode)}`)
-
-      if (!isProduction) {
-        content.push(`global.currentResource = ${stringify(filename)}`)
-      }
 
       const pagesMap: Record<string, string> = {}
       const componentsMap: Record<string, string> = {}
@@ -180,6 +168,10 @@ export default async function processScript(
       const pageConfig = page
         ? omit(jsonConfig, ['usingComponents', 'style', 'singlePage'])
         : {}
+
+      if (!isProduction) {
+        content.push(`global.currentResource = ${stringify(filename)}`)
+      }
 
       if (tabBarStr && tabBarPagesMap) {
         content.push(

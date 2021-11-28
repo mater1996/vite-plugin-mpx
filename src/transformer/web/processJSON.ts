@@ -69,11 +69,14 @@ export default async function processJSON(
     }
   }
 
-  const processPages = async (pages: JsonConfig['pages'] = []) => {
+  const processPages = async (
+    pages: JsonConfig['pages'] = [],
+    importer: string
+  ) => {
     for (const page of pages) {
       const pageModule = await pluginContext.resolve(
-        addQuery(page, { page: true }), // skip entry valid
-        filename
+        addQuery(page, { page: true }),
+        importer
       )
       if (pageModule) {
         const { filename: pageFileName, query } = parseRequest(pageModule.id)
@@ -81,12 +84,12 @@ export default async function processJSON(
         const pageId = pageModule.id
         if (localPagesMap[pageName]) {
           emitWarning(
-            `Current page [${page}] which is imported from [${filename}] has been registered in pagesMap already, it will be ignored, please check it and remove the redundant page declaration!`
+            `Current page [${page}] which is imported from [${importer}] has been registered in pagesMap already, it will be ignored, please check it and remove the redundant page declaration!`
           )
           return
         }
         pagesMap[pageId] = pageName
-        pagesEntryMap[pageId] = filename
+        pagesEntryMap[pageId] = importer
         localPagesMap[pageName] = {
           resource: pageId,
           async: !!query.async,
@@ -100,13 +103,15 @@ export default async function processJSON(
     }
   }
 
-  const processComponent = async (component: string, componentName: string) => {
+  const processComponent = async (
+    componentName: string,
+    component: string,
+    importer: string
+  ) => {
     if (component) {
       const componetModule = await pluginContext.resolve(
-        addQuery(component, {
-          component: true
-        }),
-        filename
+        addQuery(component, { component: true }),
+        importer
       )
       if (componetModule) {
         const componentId = componetModule.id
@@ -122,43 +127,36 @@ export default async function processJSON(
   }
 
   const processComponents = async (
-    components: JsonConfig['usingComponents']
+    components: JsonConfig['usingComponents'],
+    importer: string
   ) => {
-    return components
-      ? Promise.all(
-          Object.keys(components).map((key) => {
-            return processComponent(components[key], key)
-          }) || []
-        )
-      : Promise.resolve()
+    for (const key in components) {
+      await processComponent(key, components[key], importer)
+    }
   }
 
-  const processGenerics = (generics: JsonConfig['componentGenerics']) => {
-    return generics
-      ? Promise.all(
-          Object.keys(generics).map((key) => {
-            const generic = generics[key]
-            if (generic.default) {
-              return processComponent(generic.default, `${key}default`)
-            } else {
-              return Promise.resolve()
-            }
-          }) || []
-        )
-      : Promise.resolve()
+  const processGenerics = async (
+    generics: JsonConfig['componentGenerics'] = {},
+    importer: string
+  ) => {
+    for (const key in generics) {
+      const generic = generics[key]
+      if (generic.default) {
+        await processComponent(`${key}default`, generic.default, importer)
+      }
+    }
   }
 
   try {
-    await processPages(jsonConfig.pages)
-    await processComponents(jsonConfig.usingComponents)
-    await processGenerics(jsonConfig.componentGenerics)
+    await processPages(jsonConfig.pages, filename)
+    await processComponents(jsonConfig.usingComponents, filename)
+    await processGenerics(jsonConfig.componentGenerics, filename)
     await processTabBar(jsonConfig.tabBar)
 
     descriptor.localPagesMap = localPagesMap
     descriptor.localComponentsMap = localComponentsMap
     descriptor.tabBarMap = tabBarMap
     descriptor.tabBarStr = tabBarStr
-
   } catch (error) {
     pluginContext.error('[mpx loader] process json error')
   }

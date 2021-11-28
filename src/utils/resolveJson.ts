@@ -6,10 +6,10 @@ import { ResolvedOptions } from '../index'
 import { SFCDescriptor } from '../compiler'
 
 export interface JsonConfig {
-  component: boolean
+  component?: boolean
   usingComponents?: Record<string, string>
   componentGenerics?: Record<string, { default?: string }>
-  pages: string[]
+  pages?: string[]
   tabBar?: {
     custom?: boolean
     color?: string
@@ -27,8 +27,8 @@ export interface JsonConfig {
     downloadFile: number
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  window: any
-  style: string
+  window?: any
+  style?: string
 }
 
 export default async function resolveJsonFile(

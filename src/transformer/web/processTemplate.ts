@@ -72,11 +72,7 @@ export default async function processTemplate(
 
     output.push(
       genComponentTag(template, (template) => {
-        if (app) {
-          template.vueContent = template.content
-        }
-
-        if (template.content) {
+        if (!app && template.content) {
           const templateSrcMode = template.mode || srcMode
           const parsed = templateCompiler.parse(template.content, {
             warn: (msg) => {
@@ -106,8 +102,7 @@ export default async function processTemplate(
             filePath: filename,
             i18n: null,
             globalComponents: []
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          }) as any
+          })
 
           // 暂时不处理wxsModule
           // if (parsed.meta.wxsModuleMap) {

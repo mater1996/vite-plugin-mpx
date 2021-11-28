@@ -36,6 +36,7 @@ export function renderAppHelpCode(
     `Vue.use(VueRouter)`,
     `BScroll.use(ObserveDOM)`,
     `BScroll.use(PullDown)`,
+    `global.currentSrcMode = "${option.srcMode}"`,
     `global.BScroll = BScroll`,
     `global.getApp = function(){}`,
     `global.getCurrentPages = function(){

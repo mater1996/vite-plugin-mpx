@@ -46,7 +46,8 @@ interface Compiler {
     template: string,
     options: Parameters<MpxCompiler['parseComponent']>[1]
   ): SFCDescriptor
-  parse(template: string, options: Parameters<MpxCompiler['parse']>[1]): unknown
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parse(template: string, options: Parameters<MpxCompiler['parse']>[1]): any
   serialize: MpxCompiler['serialize']
 }
 
