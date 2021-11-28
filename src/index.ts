@@ -70,7 +70,7 @@ export interface ResolvedOptions extends Required<Options> {
   root: string
 }
 
-function genCustomExtensions(mode: string, env: string) {
+function genCustomExtensions(mode: string, env?: string) {
   const res: string[] = [mode]
   if (env) res.push(env, `${mode}.${env}`, `${env}.${mode}`)
   return res
