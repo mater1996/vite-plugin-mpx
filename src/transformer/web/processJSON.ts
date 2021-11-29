@@ -1,4 +1,5 @@
 import path from 'path'
+import fs from 'fs'
 import { TransformPluginContext } from 'rollup'
 import { ResolvedOptions } from '../../index'
 import { SFCDescriptor } from '../../compiler'
@@ -9,6 +10,7 @@ import pathHash from '../../utils/pageHash'
 import resolveModuleContext from '../../utils/resolveModuleContext'
 import addQuery from '../../utils/addQuery'
 import normalizePath from '../../utils/normalizePath'
+import { createDescriptor } from '../../utils/descriptorCache'
 
 export default async function processJSON(
   descriptor: SFCDescriptor,
@@ -24,8 +26,6 @@ export default async function processJSON(
   const { pagesMap, componentsMap, pagesEntryMap } = mpx
   const localPagesMap: SFCDescriptor['localPagesMap'] = {}
   const localComponentsMap: SFCDescriptor['localComponentsMap'] = {}
-
-  const context = resolveModuleContext(descriptor.filename)
 
   let tabBarMap: Record<string, unknown> = {}
   let tabBarStr = ''
@@ -45,8 +45,8 @@ export default async function processJSON(
    * ./page/index/index.mpx = page/index/index
    * @param page - pagePath
    */
-  function genPageName(page: string) {
-    const relative = path.relative(context, page)
+  function genPageName(page: string, dirname: string) {
+    const relative = path.relative(dirname, page)
     return normalizePath(
       path.join('', /^(.*?)(\.[^.]*)?$/.exec(relative)?.[1] || '')
     )
@@ -73,6 +73,7 @@ export default async function processJSON(
     pages: JsonConfig['pages'] = [],
     importer: string
   ) => {
+    const dirname = resolveModuleContext(importer)
     for (const pagePath of pages) {
       const pageModule = await pluginContext.resolve(
         addQuery(pagePath, { page: null }),
@@ -80,7 +81,7 @@ export default async function processJSON(
       )
       if (pageModule) {
         const { filename: pageFileName, query } = parseRequest(pageModule.id)
-        const pageName = genPageName(pageFileName)
+        const pageName = genPageName(pageFileName, dirname)
         const pageId = pageModule.id
         if (localPagesMap[pageName]) {
           emitWarning(
@@ -97,7 +98,7 @@ export default async function processJSON(
         }
       } else {
         emitWarning(
-          `Current page [${pagePath}] is not in current pages directory [${context}]`
+          `Current page [${pagePath}] is not in current pages directory [${dirname}]`
         )
       }
     }
@@ -147,11 +148,34 @@ export default async function processJSON(
     }
   }
 
+  const processPackages = async (
+    packages: JsonConfig['packages'] = [],
+    context: string
+  ) => {
+    for (const packagePath of packages) {
+      const { filename, query } = parseRequest(packagePath)
+      const packageModule = await pluginContext.resolve(filename, context)
+      if (packageModule) {
+        pluginContext.addWatchFile(packageModule.id)
+        const code = await fs.promises.readFile(packageModule.id, 'utf-8')
+        const descriptor = createDescriptor(
+          packageModule.id,
+          code,
+          query,
+          options
+        )
+        descriptor.jsonConfig = await resolveJson(descriptor, options, pluginContext)
+        await processPages(descriptor.jsonConfig.pages, packageModule.id)
+      }
+    }
+  }
+
   try {
     await processPages(jsonConfig.pages, filename)
     await processComponents(jsonConfig.usingComponents, filename)
     await processGenerics(jsonConfig.componentGenerics, filename)
     await processTabBar(jsonConfig.tabBar)
+    await processPackages(jsonConfig.packages, filename)
 
     descriptor.localPagesMap = localPagesMap
     descriptor.localComponentsMap = localComponentsMap

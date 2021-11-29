@@ -9,6 +9,7 @@ export interface JsonConfig {
   component?: boolean
   usingComponents?: Record<string, string>
   componentGenerics?: Record<string, { default?: string }>
+  packages?: string[]
   pages?: string[]
   tabBar?: {
     custom?: boolean
