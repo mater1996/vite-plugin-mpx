@@ -73,9 +73,9 @@ export default async function processJSON(
     pages: JsonConfig['pages'] = [],
     importer: string
   ) => {
-    for (const page of pages) {
+    for (const pagePath of pages) {
       const pageModule = await pluginContext.resolve(
-        addQuery(page, { page: null }),
+        addQuery(pagePath, { page: null }),
         importer
       )
       if (pageModule) {
@@ -84,7 +84,7 @@ export default async function processJSON(
         const pageId = pageModule.id
         if (localPagesMap[pageName]) {
           emitWarning(
-            `Current page [${page}] which is imported from [${importer}] has been registered in pagesMap already, it will be ignored, please check it and remove the redundant page declaration!`
+            `Current page [${pagePath}] which is imported from [${importer}] has been registered in pagesMap already, it will be ignored, please check it and remove the redundant page declaration!`
           )
           return
         }
@@ -97,7 +97,7 @@ export default async function processJSON(
         }
       } else {
         emitWarning(
-          `Current page [${page}] is not in current pages directory [${context}]`
+          `Current page [${pagePath}] is not in current pages directory [${context}]`
         )
       }
     }
@@ -105,12 +105,12 @@ export default async function processJSON(
 
   const processComponent = async (
     componentName: string,
-    component: string,
+    componentPath: string,
     importer: string
   ) => {
-    if (component) {
+    if (componentPath) {
       const componetModule = await pluginContext.resolve(
-        addQuery(component, { component: null }),
+        addQuery(componentPath, { component: null }),
         importer
       )
       if (componetModule) {

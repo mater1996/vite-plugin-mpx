@@ -21,8 +21,8 @@ export interface EsbuildAddExtensionsOptions {
  * @param extendsion - string
  * @returns path/to/index.extendsion.js
  */
-function genExtensionsFilePath(originPath: string, extendsion: string): string {
-  const parseResult = path.parse(originPath)
+function genExtensionsFilePath(filename: string, extendsion: string): string {
+  const parseResult = path.parse(filename)
   return path.format({
     ...parseResult,
     name: `${parseResult.name}.${extendsion}`,
@@ -58,16 +58,21 @@ export default function addExtensionsPlugin(
   return {
     name: 'vite:mpx-file-estensions',
     enforce: 'pre',
-    async load(id) {
-      if (!filter(id)) return
-      for (const extendsion of options.extensions) {
-        try {
-          const filePath = genExtensionsFilePath(id, extendsion)
-          await fs.promises.access(filePath)
-          return {
-            code: await fs.promises.readFile(filePath, 'utf-8')
-          }
-        } catch {}
+
+    async resolveId(source, importer) {
+      const resolution = await this.resolve(source, importer, {
+        skipSelf: true
+      })
+      if (resolution) {
+        if (!filter(resolution.id)) return
+        for (const extendsion of options.extensions) {
+          try {
+            const filePath = genExtensionsFilePath(resolution.id, extendsion)
+            const [filename] = filePath.split('?', 2)
+            await fs.promises.access(filename)
+            return filePath
+          } catch {}
+        }
       }
     }
   }

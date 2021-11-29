@@ -1,9 +1,8 @@
 <template>
   <view>
-    <view style="text-align: center">{{ index }}1231312</view>
-    <button bindtap="handleTap">add1231231123321312312</button>
+    <view style="text-align: center">{{ index }}</view>
+    <button bindtap="handleTap">add</button>
     <intro></intro>
-    12321123123321123213
   </view>
 </template>
 
@@ -24,7 +23,7 @@
 <script type="application/json">
   {
     "usingComponents": {
-      "intro": "../../components/component.mpx"
+      "intro": "@/components/component.mpx"
     }
   }
 </script>

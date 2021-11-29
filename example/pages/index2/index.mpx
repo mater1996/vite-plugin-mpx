@@ -1,6 +1,6 @@
 <template>
   <view>
-    123213
+    page2
   </view>
 </template>
 
@@ -20,11 +20,7 @@
 </script>
 
 <script type="application/json">
-  {
-    "usingComponents": {
-      "intro": "../../components/component.mpx"
-    }
-  }
+  {}
 </script>
 
 <style>

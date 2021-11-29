@@ -1,5 +1,5 @@
 <template>
-  <view class="div">intro component</view>
+  <view class="div">didi intro component</view>
 </template>
 
 <script>

@@ -72,7 +72,7 @@ export interface ResolvedOptions extends Required<Options> {
 
 function genCustomExtensions(mode: string, env?: string) {
   const res: string[] = [mode]
-  if (env) res.push(env, `${mode}.${env}`, `${env}.${mode}`)
+  if (env) res.push(env, `${mode}.${env}`)
   return res
 }
 
@@ -180,9 +180,11 @@ function createMpxPlugin(
   }
 }
 
+export { addExtensionsPlugin }
+
 export default function mpx(options: Options = {}): Plugin[] {
   const resolvedOptions = processOptions({ ...options })
-  const { mode, env } = resolvedOptions
+  const { mode, env, isProduction, defs } = resolvedOptions
   const customExtensions = genCustomExtensions(mode, env)
 
   const plugins = [
@@ -201,7 +203,7 @@ export default function mpx(options: Options = {}): Plugin[] {
     }),
     // *.* => *.{extension}.*
     addExtensionsPlugin({
-      include: [/@mpxjs/, resolvedOptions.projectRoot],
+      include: [/@mpxjs/, /\.mpx/],
       extensions: customExtensions
     }),
     // ensure mpx entry point
@@ -211,9 +213,9 @@ export default function mpx(options: Options = {}): Plugin[] {
     replace({
       preventAssignment: true,
       values: stringifyObject({
-        ...resolvedOptions.defs,
+        ...defs,
         'process.env.NODE_ENV': JSON.stringify(
-          resolvedOptions.isProduction ? 'production' : 'development'
+          isProduction ? 'production' : 'development'
         )
       })
     }),
@@ -223,7 +225,7 @@ export default function mpx(options: Options = {}): Plugin[] {
     })
   ]
 
-  if (!resolvedOptions.isProduction) {
+  if (!isProduction) {
     plugins.push(
       commonjs({
         include: [/@mpxjs\/webpack-plugin\/lib\/utils/]

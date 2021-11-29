@@ -22,11 +22,7 @@ export default function resolveEntryPlugin(): Plugin {
           skipSelf: true,
           ...options
         })
-        if (!resolution) {
-          this.error('not found mpx entry')
-          return null
-        }
-        return (mpxGlobal.entry = resolution.id)
+        if (resolution) return (mpxGlobal.entry = resolution.id)
       }
     }
   }
