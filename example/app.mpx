@@ -14,8 +14,13 @@
     '@/pages/index2/index.mpx'
   ]
 
+  const packages = [
+    './packages/package1/app'
+  ]
+
   module.exports = {
     pages,
+    packages,
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
