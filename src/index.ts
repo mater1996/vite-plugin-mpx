@@ -135,7 +135,7 @@ function createMpxPlugin(
             block = descriptor.styles[Number(query.index)]
           }
           if (block) {
-            return block.vueContent
+            return block.content
           }
         }
       }

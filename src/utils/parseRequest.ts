@@ -1,15 +1,16 @@
 import qs from 'qs'
 
 export interface Query {
-  vue?: boolean
-  src?: boolean
+  vue?: null
+  mpx?: null
+  src?: string
   type?: 'script' | 'template' | 'style' | 'custom'
-  index?: number
+  index?: string
   lang?: string
-  raw?: boolean
-  app?: boolean
-  page?: boolean
-  component?: boolean
+  raw?: string
+  app?: null
+  page?: null
+  component?: null
   componentId?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any

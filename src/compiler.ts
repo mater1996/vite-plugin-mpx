@@ -11,9 +11,9 @@ type MpxCompiler = typeof mpxCompiler
 export interface SFCDescriptor extends CompilerResult {
   id: string
   filename: string
+  app: boolean
   page: boolean
   component: boolean
-  app: boolean
   jsonConfig: JsonConfig
   builtInComponentsMap: Record<
     string,

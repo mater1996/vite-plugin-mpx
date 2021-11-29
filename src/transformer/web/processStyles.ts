@@ -14,7 +14,7 @@ export default async function processStyles(
       output.push(
         genComponentTag(style, {
           content(style) {
-            return (style.vueContent = style.content)
+            return style.content
           }
         })
       )

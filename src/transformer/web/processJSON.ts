@@ -75,7 +75,7 @@ export default async function processJSON(
   ) => {
     for (const page of pages) {
       const pageModule = await pluginContext.resolve(
-        addQuery(page, { page: true }),
+        addQuery(page, { page: null }),
         importer
       )
       if (pageModule) {
@@ -110,7 +110,7 @@ export default async function processJSON(
   ) => {
     if (component) {
       const componetModule = await pluginContext.resolve(
-        addQuery(component, { component: true }),
+        addQuery(component, { component: null }),
         importer
       )
       if (componetModule) {

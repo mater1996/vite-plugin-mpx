@@ -8,8 +8,8 @@
 </template>
 
 <script>
-  import { createComponent } from '@mpxjs/core'
-  createComponent({
+  import { createPage } from '@mpxjs/core'
+  createPage({
     data: {
       index: 0
     },

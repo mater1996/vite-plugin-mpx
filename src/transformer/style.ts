@@ -9,13 +9,12 @@ export default async function transformStyle(
   index: number,
   pluginContext: TransformPluginContext
 ): Promise<TransformResult | undefined> {
-  if (descriptor.template) {
-    return await vueTransformStyle(
-      code,
-      filename,
-      descriptor,
-      index,
-      pluginContext
-    )
-  }
+  // Pass style directly to vue
+  return await vueTransformStyle(
+    code,
+    filename,
+    descriptor,
+    index,
+    pluginContext
+  )
 }

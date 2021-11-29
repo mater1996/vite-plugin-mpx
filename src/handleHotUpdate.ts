@@ -33,10 +33,11 @@ export default async function handleHotUpdate(
   const descriptor = createDescriptor(
     file,
     content,
+    // mock query
     {
-      app: prevDescriptor.app,
-      page: prevDescriptor.page,
-      component: prevDescriptor.component
+      app: prevDescriptor.app ? null : undefined,
+      page: prevDescriptor.page ? null : undefined,
+      component: prevDescriptor.component ? null : undefined
     },
     options
   )

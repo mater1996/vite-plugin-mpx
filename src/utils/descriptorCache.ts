@@ -1,49 +1,12 @@
 import path from 'path'
 import slash from 'slash'
-import { ResolvedOptions } from '../index'
-import compiler, { SFCBlock, SFCDescriptor } from '../compiler'
 import { Query } from './parseRequest'
 import pathHash from './pageHash'
+import { ResolvedOptions } from '../index'
+import compiler, { SFCBlock, SFCDescriptor } from '../compiler'
 
 const cache = new Map<string, SFCDescriptor>()
 const prevCache = new Map<string, SFCDescriptor | undefined>()
-
-export function createDescriptor(
-  filename: string,
-  code: string,
-  query: Query,
-  options: ResolvedOptions
-): SFCDescriptor {
-  const { projectRoot, isProduction, mode, defs, env, sourceMap } = options
-  const descriptor = compiler.parseComponent(code, {
-    mode,
-    defs,
-    env,
-    filePath: filename,
-    pad: 'line',
-    needMap: sourceMap
-  })
-  const normalizedPath = slash(
-    path.normalize(path.relative(projectRoot, filename))
-  )
-  descriptor.id = pathHash(normalizedPath + (isProduction ? code : ''))
-  descriptor.filename = filename
-  descriptor.page = query.page ? true : false
-  descriptor.component = query.component ? true : false
-  descriptor.app = !query.page && !query.component ? true : false
-  if (descriptor.app) {
-    descriptor.template = genDescriptorTemplate()
-  }
-  if (!descriptor.script) {
-    descriptor.script = genDescriptorScript(descriptor)
-  }
-  cache.set(filename, descriptor)
-  normalizeBlock(descriptor.template)
-  normalizeBlock(descriptor.script)
-  normalizeBlock(descriptor.json)
-  normalizeBlock(descriptor.styles)
-  return descriptor
-}
 
 function genDescriptorTemplate() {
   const template: SFCDescriptor['template'] = {
@@ -65,7 +28,6 @@ function genDescriptorScript(descriptor: SFCDescriptor) {
     type: 'script',
     content: '',
     attrs: {},
-    vueContent: '',
     start: 0,
     end: 0
   }
@@ -92,6 +54,43 @@ function normalizeBlock(block: SFCBlock | SFCBlock[] | null) {
   blocks.forEach((b) => {
     b.content = '\n' + b.content.replace(/^\n*/m, '')
   })
+}
+
+export function createDescriptor(
+  filename: string,
+  code: string,
+  query: Query,
+  options: ResolvedOptions
+): SFCDescriptor {
+  const { projectRoot, isProduction, mode, defs, env, sourceMap } = options
+  const descriptor = compiler.parseComponent(code, {
+    mode,
+    defs,
+    env,
+    filePath: filename,
+    pad: 'line',
+    needMap: sourceMap
+  })
+  const normalizedPath = slash(
+    path.normalize(path.relative(projectRoot, filename))
+  )
+  descriptor.id = pathHash(normalizedPath + (isProduction ? code : ''))
+  descriptor.filename = filename
+  descriptor.page = query.page !== undefined
+  descriptor.component = query.component !== undefined
+  descriptor.app = !(descriptor.page || descriptor.component)
+  if (descriptor.app) {
+    descriptor.template = genDescriptorTemplate()
+  }
+  if (!descriptor.script) {
+    descriptor.script = genDescriptorScript(descriptor)
+  }
+  normalizeBlock(descriptor.template)
+  normalizeBlock(descriptor.script)
+  normalizeBlock(descriptor.json)
+  normalizeBlock(descriptor.styles)
+  cache.set(filename, descriptor)
+  return descriptor
 }
 
 export function getPrevDescriptor(filename: string): SFCDescriptor | undefined {

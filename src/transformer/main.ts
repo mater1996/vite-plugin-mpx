@@ -20,21 +20,19 @@ export default async function transformMain(
   const descriptor = createDescriptor(filename, code, query, options)
   if (descriptor) {
     await processJSON(descriptor, options, pluginContext)
-    // generate <template></template>
-    const templateResult = await genTemplateCode(
+    // generate template block
+    const templateBlock = await genTemplateCode(
       descriptor,
       options,
       pluginContext
     )
-    // generate <style></style>
-    const styleResult = await genStylesCode(descriptor)
-    // generate <script></script>
-    const scriptResult = await genScriptCode(descriptor, options, pluginContext)
-    // generate vue sfc
-    const result = genResult(templateResult, styleResult, scriptResult)
+    // generate script block
+    const scriptBlock = await genScriptCode(descriptor, options, pluginContext)
+    // generate styles block
+    const stylesBlock = await genStylesCode(descriptor)
     // transform vue
     const vueCode = await vueTransformMain(
-      result,
+      genVueSfc(templateBlock, scriptBlock, stylesBlock),
       filename,
       options,
       pluginContext
@@ -46,7 +44,7 @@ export default async function transformMain(
   }
 }
 
-function genResult(...args: ProcessResult[]) {
+function genVueSfc(...args: ProcessResult[]) {
   return args.map((v) => v.output).join('\n')
 }
 

@@ -32,7 +32,6 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
 
   export interface SFCBlock {
     tag: 'template' | 'script' | 'style'
-    vueContent: string
     content: string
     result?: string
     start: number
@@ -48,6 +47,7 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
     type: 'template'
     lang?: string
     mode?: Mode
+    vueContent: string
   }
 
   export interface Script extends SFCBlock {

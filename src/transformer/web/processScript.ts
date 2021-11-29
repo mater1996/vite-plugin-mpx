@@ -202,7 +202,7 @@ export default async function processScript(
       )
 
       if (descriptor.script) {
-        return (descriptor.script.vueContent = `\n${content.join('\n')}\n`)
+        return `\n${content.join('\n')}\n`
       }
 
       return ''

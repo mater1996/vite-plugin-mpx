@@ -8,8 +8,6 @@ import { resolveMpxRuntime } from '../../utils/resolveMpx'
 
 const mpxKeepAlivePath = resolveMpxRuntime('components/web/mpx-keep-alive.vue')
 
-export type ProcessTemplateResult = ProcessResult
-
 function calculateRootEleChild(arr: []) {
   if (!arr) {
     return 0
@@ -26,6 +24,8 @@ function calculateRootEleChild(arr: []) {
     return total
   }, 0)
 }
+
+export type ProcessTemplateResult = ProcessResult
 
 export default async function processTemplate(
   descriptor: SFCDescriptor,

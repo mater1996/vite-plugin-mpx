@@ -11,10 +11,12 @@ export default async function transformTemplate(
   options: ResolvedOptions,
   pluginContext: TransformPluginContext
 ): Promise<TransformResult | undefined> {
-  if (descriptor.template) {
+  const { template } = descriptor
+  if (template) {
+    // ProcessScript relies on template parsing, the result is cached at the time of processTemplate
     return await vueTransformTemplate(
-      code,
-      descriptor.template,
+      template.vueContent,
+      template,
       filename,
       options,
       pluginContext
