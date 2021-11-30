@@ -10,7 +10,7 @@
 <script name="json">
   // 可以写注释，通过defs注入的常量做一些判断之类的操作-->
   const pages = [
-    '@/pages/index/index',
+    '@/pages/index/index?async',
     '@/pages/index2/index'
   ]
 
