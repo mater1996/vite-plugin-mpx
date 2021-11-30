@@ -74,7 +74,8 @@ export default function processOptions(rawOptions: Options): ResolvedOptions {
   rawOptions.fileConditionRules = rawOptions.fileConditionRules || [/\.mpx/]
   const options: ResolvedOptions = {
     ...(rawOptions as Required<Options>),
-    isProduction: process.env.NODE_ENV === 'production'
+    isProduction: process.env.NODE_ENV === 'production',
+    root: ''
   }
   return options
 }
