@@ -4,7 +4,7 @@ import { Plugin as EsbuildPlugin } from 'esbuild'
 import { Plugin } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 
-export interface addExtensionsOptions {
+export interface AddExtensionsOptions {
   include: string | RegExp | (string | RegExp)[]
   exclude?: string | RegExp | (string | RegExp)[]
   extensions: string[]
@@ -34,16 +34,18 @@ export function esbuildAddExtensionsPlugin(
   options: EsbuildAddExtensionsOptions
 ): EsbuildPlugin {
   return {
-    name: 'esbuild:mpx-file-estensions',
+    name: 'esbuild:mpx-custom-estensions',
     setup(build) {
       build.onLoad({ filter: options.include }, async (args) => {
         for (const extendsion of options.extensions) {
           try {
-            const filePath = genExtensionsFilePath(args.path, extendsion)
-            await fs.promises.access(filePath)
-            return {
-              contents: await fs.promises.readFile(filePath, 'utf-8')
-            }
+            try {
+              const filePath = genExtensionsFilePath(args.path, extendsion)
+              await fs.promises.access(filePath)
+              return {
+                contents: await fs.promises.readFile(filePath, 'utf-8')
+              }
+            } catch {}
           } catch {}
         }
       })
@@ -51,26 +53,33 @@ export function esbuildAddExtensionsPlugin(
   }
 }
 
-export default function addExtensionsPlugin(
-  options: addExtensionsOptions
+/**
+ * add custom extensions plugin
+ * @param options - options
+ * @returns vite plugin options
+ */
+export function customExtensionsPlugin(
+  options: AddExtensionsOptions
 ): Plugin {
   const filter = createFilter(options.include, options.exclude)
   return {
-    name: 'vite:mpx-file-estensions',
+    name: 'vite:mpx-custom-estensions',
+    // https://github.com/vitejs/vite/issues/3705
+    // resolveId() is hookFirst - first non-null result is returned.
     enforce: 'pre',
 
     async resolveId(source, importer) {
+      if (!filter(source)) return
       const resolution = await this.resolve(source, importer, {
         skipSelf: true
       })
       if (resolution) {
-        if (!filter(resolution.id)) return
         for (const extendsion of options.extensions) {
           try {
-            const filePath = genExtensionsFilePath(resolution.id, extendsion)
-            const [filename] = filePath.split('?', 2)
-            await fs.promises.access(filename)
-            return filePath
+            const [filename, rawQuery] = resolution.id.split('?', 2)
+            const filePath = genExtensionsFilePath(filename, extendsion)
+            await fs.promises.access(filePath)
+            return `${filePath}${rawQuery ? `?${rawQuery}` : ''}`
           } catch {}
         }
       }

@@ -1,5 +1,5 @@
 import path from 'path'
-import mpx, { addExtensionsPlugin } from '../dist/index'
+import mpx from '../dist/index'
 
 export default {
   plugins: [
@@ -8,10 +8,10 @@ export default {
     })
   ],
   resolve: {
-    extensions: ['.mpx', '.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
     alias: {
       '@': path.resolve('.')
-    }
+    },
+    extensions: ['.mpx', '.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
   build: {
     target: ['es2015'],

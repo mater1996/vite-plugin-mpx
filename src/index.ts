@@ -10,7 +10,8 @@ import transformTemplate from './transformer/template'
 import transformStyle from './transformer/style'
 import handleHotUpdate from './handleHotUpdate'
 import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
-import addExtensionsPlugin, {
+import {
+  customExtensionsPlugin,
   esbuildAddExtensionsPlugin
 } from './plugins/addExtensionsPlugin'
 import mpxEntryPlugin from './plugins/mpxEntryPlugin'
@@ -18,6 +19,7 @@ import parseRequest from './utils/parseRequest'
 import processOptions from './utils/processOptions'
 import { getDescriptor } from './utils/descriptorCache'
 import stringifyObject from './utils/stringifyObject'
+import ensureArray from './utils/ensureArray'
 
 export type Mode = 'wx' | 'web' | 'ali' | 'swan'
 
@@ -60,31 +62,25 @@ export interface Options {
   forceMainPackageRules?: Record<string, unknown>
   forceProxyEventRules?: Record<string, unknown>
   miniNpmPackages?: string[]
-  fileConditionRules?: Record<string, () => boolean>
+  fileConditionRules?: string | RegExp | (string | RegExp)[]
 }
 
 export interface ResolvedOptions extends Required<Options> {
   sourceMap?: boolean
   devServer?: ViteDevServer
+  root?: string
   isProduction: boolean
-  root: string
-}
-
-function genCustomExtensions(mode: string, env?: string) {
-  const res: string[] = [mode]
-  if (env) res.push(env, `${mode}.${env}`)
-  return res
 }
 
 function createMpxPlugin(
   options: ResolvedOptions,
   config?: UserConfig
 ): Plugin {
-  const { include = /\.mpx$/, exclude } = options
+  const { include, exclude } = options
   const filter = createFilter(include, exclude)
 
   const mpxVuePlugin = createVuePlugin({
-    include: /\.mpx/
+    include
   })
 
   return {
@@ -180,12 +176,9 @@ function createMpxPlugin(
   }
 }
 
-export { addExtensionsPlugin }
-
 export default function mpx(options: Options = {}): Plugin[] {
   const resolvedOptions = processOptions({ ...options })
-  const { mode, env, isProduction, defs } = resolvedOptions
-  const customExtensions = genCustomExtensions(mode, env)
+  const { mode, env, isProduction, defs, fileConditionRules } = resolvedOptions
 
   const plugins = [
     // mpx => vue
@@ -193,18 +186,19 @@ export default function mpx(options: Options = {}): Plugin[] {
       optimizeDeps: {
         esbuildOptions: {
           plugins: [
+            // prebuild for addExtensions
             esbuildAddExtensionsPlugin({
-              include: /@mpxjs/, // prebuild for addMode
-              extensions: customExtensions
+              include: /@mpxjs/,
+              extensions: [mode]
             })
           ]
         }
       }
     }),
-    // *.* => *.{extension}.*
-    addExtensionsPlugin({
-      include: [/@mpxjs/, /\.mpx/],
-      extensions: customExtensions
+    // add custom extensions
+    customExtensionsPlugin({
+      include: [...ensureArray(fileConditionRules), /@mpxjs/],
+      extensions: [mode, env, env && `${mode}.${env}`].filter(Boolean)
     }),
     // ensure mpx entry point
     mpxEntryPlugin(),

@@ -23,7 +23,7 @@
 <script type="application/json">
   {
     "usingComponents": {
-      "intro": "@/components/component.mpx"
+      "intro": "../../components/component.mpx"
     }
   }
 </script>

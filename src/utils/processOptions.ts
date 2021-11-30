@@ -5,7 +5,7 @@ const externalsMap: Record<string, RegExp> = {
 }
 
 export default function processOptions(rawOptions: Options): ResolvedOptions {
-  rawOptions.include = rawOptions.include || /\.mpx$/
+  rawOptions.include = rawOptions.include || [/\.mpx$/]
   rawOptions.exclude = rawOptions.exclude || []
   rawOptions.mode = rawOptions.mode || 'web'
   rawOptions.env = rawOptions.env || process.env.NODE_ENV || ''
@@ -71,13 +71,9 @@ export default function processOptions(rawOptions: Options): ResolvedOptions {
   rawOptions.forceMainPackageRules = rawOptions.forceMainPackageRules || {}
   rawOptions.forceProxyEventRules = rawOptions.forceProxyEventRules || {}
   rawOptions.miniNpmPackages = rawOptions.miniNpmPackages || []
-  rawOptions.fileConditionRules = rawOptions.fileConditionRules || {
-    include: () => true
-  }
+  rawOptions.fileConditionRules = rawOptions.fileConditionRules || [/\.mpx/]
   const options: ResolvedOptions = {
     ...(rawOptions as Required<Options>),
-    sourceMap: true,
-    root: '',
     isProduction: process.env.NODE_ENV === 'production'
   }
   return options
