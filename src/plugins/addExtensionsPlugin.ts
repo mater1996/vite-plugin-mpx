@@ -39,13 +39,11 @@ export function esbuildAddExtensionsPlugin(
       build.onLoad({ filter: options.include }, async (args) => {
         for (const extendsion of options.extensions) {
           try {
-            try {
-              const filePath = genExtensionsFilePath(args.path, extendsion)
-              await fs.promises.access(filePath)
-              return {
-                contents: await fs.promises.readFile(filePath, 'utf-8')
-              }
-            } catch {}
+            const filePath = genExtensionsFilePath(args.path, extendsion)
+            await fs.promises.access(filePath)
+            return {
+              contents: await fs.promises.readFile(filePath, 'utf-8')
+            }
           } catch {}
         }
       })
@@ -58,9 +56,7 @@ export function esbuildAddExtensionsPlugin(
  * @param options - options
  * @returns vite plugin options
  */
-export function customExtensionsPlugin(
-  options: AddExtensionsOptions
-): Plugin {
+export function customExtensionsPlugin(options: AddExtensionsOptions): Plugin {
   const filter = createFilter(options.include, options.exclude)
   return {
     name: 'vite:mpx-custom-estensions',
