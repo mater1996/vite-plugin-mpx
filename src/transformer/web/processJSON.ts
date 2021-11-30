@@ -11,6 +11,7 @@ import resolveModuleContext from '../../utils/resolveModuleContext'
 import addQuery from '../../utils/addQuery'
 import normalizePath from '../../utils/normalizePath'
 import { createDescriptor } from '../../utils/descriptorCache'
+import stringify from '../../utils/stringify'
 
 export default async function processJSON(
   descriptor: SFCDescriptor,
@@ -59,7 +60,7 @@ export default async function processJSON(
       jsonConfig?.tabBar?.list?.forEach(({ pagePath }) => {
         tabBarMap[pagePath] = true
       })
-      tabBarStr = JSON.stringify(tabBar)
+      tabBarStr = stringify(tabBar)
       tabBarStr = tabBarStr.replace(
         /"(iconPath|selectedIconPath)":"([^"]+)"/g,
         function (matched) {
@@ -93,8 +94,8 @@ export default async function processJSON(
         pagesEntryMap[pageId] = importer
         localPagesMap[pageName] = {
           resource: pageId,
-          async: !!query.async,
-          isFirst: query.isFirst || false
+          async: query.async !== undefined,
+          isFirst: query.isFirst !== undefined
         }
       } else {
         emitWarning(
@@ -164,7 +165,11 @@ export default async function processJSON(
           query,
           options
         )
-        descriptor.jsonConfig = await resolveJson(descriptor, options, pluginContext)
+        descriptor.jsonConfig = await resolveJson(
+          descriptor,
+          options,
+          pluginContext
+        )
         await processPages(descriptor.jsonConfig.pages, packageModule.id)
       }
     }

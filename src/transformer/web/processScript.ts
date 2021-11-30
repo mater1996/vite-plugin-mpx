@@ -76,9 +76,8 @@ export default async function processScript(
           content.push(`import ${varString} from "${resource}"`)
           return `getComponent(${varString}, ${stringify(options)})`
         } else {
-          return `() => import("${resource}").then(${varString} =>
-            getComponent(${varString}, ${stringify(options)}
-          ))`
+          return `() => import("${resource}").then(${varString} => getComponent(${varString}.default, ${stringify(options)})
+          )`
         }
       }
 
