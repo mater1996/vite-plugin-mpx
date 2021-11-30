@@ -1,3 +1,12 @@
+# [1.0.0-alpha.10](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.9...1.0.0-alpha.10) (2021-11-30)
+
+
+### Bug Fixes
+
+* async import ([6b1e74b](https://github.com/mater1996/vite-plugin-mpx/commit/6b1e74b7086ffe0b546f511e14250a20f808bcae))
+* async import ([2c7cf3d](https://github.com/mater1996/vite-plugin-mpx/commit/2c7cf3d9dfd410b4d80bb8e6bd6af46d00debcec))
+* remove addExtensionsPlugin unused trycatch ([760c513](https://github.com/mater1996/vite-plugin-mpx/commit/760c513721d92b7eeff30a446e414d8a28ce2782))
+
 # [1.0.0-alpha.9](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.8...1.0.0-alpha.9) (2021-11-30)
 
 
