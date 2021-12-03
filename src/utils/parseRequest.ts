@@ -3,17 +3,17 @@ import qs from 'qs'
 export interface Query {
   vue?: null
   mpx?: null
+  app?: null
+  page?: null
+  component?: null
+  resolve?: null
   src?: string
   type?: 'script' | 'template' | 'style' | 'custom'
   index?: string
   lang?: string
   raw?: string
-  app?: null
-  page?: null
-  component?: null
   componentId?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export default function parseRequest(id: string): {

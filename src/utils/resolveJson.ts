@@ -30,6 +30,8 @@ export interface JsonConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   window?: any
   style?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  singlePage?: any
 }
 
 export default async function resolveJsonFile(

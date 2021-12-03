@@ -18,7 +18,7 @@ import mpxEntryPlugin from './plugins/mpxEntryPlugin'
 import parseRequest from './utils/parseRequest'
 import processOptions from './utils/processOptions'
 import { getDescriptor } from './utils/descriptorCache'
-import stringifyObject from './utils/stringifyObject'
+import { stringifyObject } from './utils/stringify'
 import ensureArray from './utils/ensureArray'
 
 export type Mode = 'wx' | 'web' | 'ali' | 'swan'

@@ -12,6 +12,7 @@ export default function resolveEntryPlugin(): Plugin {
       const { filename, query } = parseRequest(id)
       if (!filter(filename)) return
       if (
+        query.resolve === undefined &&
         query.mpx === undefined &&
         query.app === undefined &&
         query.page === undefined &&

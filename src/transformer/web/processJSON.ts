@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import { TransformPluginContext } from 'rollup'
+import { normalizePath } from '@rollup/pluginutils';
 import { ResolvedOptions } from '../../index'
 import { SFCDescriptor } from '../../compiler'
 import mpx from '../../mpx'
@@ -9,7 +10,6 @@ import parseRequest from '../../utils/parseRequest'
 import pathHash from '../../utils/pageHash'
 import resolveModuleContext from '../../utils/resolveModuleContext'
 import addQuery from '../../utils/addQuery'
-import normalizePath from '../../utils/normalizePath'
 import { createDescriptor } from '../../utils/descriptorCache'
 import stringify from '../../utils/stringify'
 

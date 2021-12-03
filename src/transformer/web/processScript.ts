@@ -7,8 +7,7 @@ import { APP_HELPER_CODE } from '../../helper'
 import { resolveMpxRuntime } from '../../utils/resolveMpx'
 import resolveScriptFile from '../../utils/resolveScript'
 import omit from '../../utils/omit'
-import shallowStringify from '../../utils/shallowStringify'
-import stringify from '../../utils/stringify'
+import stringify, { shallowStringify } from '../../utils/stringify'
 
 const optionProcessorPath = resolveMpxRuntime('optionProcessor')
 const tabBarContainerPath = resolveMpxRuntime(
@@ -73,10 +72,12 @@ export default async function processScript(
         options: unknown = {}
       ) => {
         if (!async) {
-          content.push(`import ${varString} from "${resource}"`)
+          content.push(`import ${varString} from ${stringify(resource)}`)
           return `getComponent(${varString}, ${stringify(options)})`
         } else {
-          return `() => import("${resource}").then(${varString} => getComponent(${varString}.default, ${stringify(options)})
+          return `() => import("${resource}").then(${varString} => getComponent(${varString}.default, ${stringify(
+            options
+          )})
           )`
         }
       }
