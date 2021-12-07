@@ -56,7 +56,7 @@ const compiler: Compiler = {
     const descriptor = parseComponent(template, options) as SFCDescriptor
     if (descriptor.script && descriptor.script.map) {
       const sources = descriptor.script.map.sources || []
-      descriptor.script.map.sources = sources.map((v) => v.split('?')[0])
+      descriptor.script.map.sources = sources.map((v: string) => v.split('?')[0])
     }
     return descriptor
   },

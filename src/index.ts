@@ -12,7 +12,7 @@ import handleHotUpdate from './handleHotUpdate'
 import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
 import {
   customExtensionsPlugin,
-  esbuildAddExtensionsPlugin
+  esbuildCustomExtensionsPlugin
 } from './plugins/addExtensionsPlugin'
 import mpxEntryPlugin from './plugins/mpxEntryPlugin'
 import parseRequest from './utils/parseRequest'
@@ -187,7 +187,7 @@ export default function mpx(options: Options = {}): Plugin[] {
         esbuildOptions: {
           plugins: [
             // prebuild for addExtensions
-            esbuildAddExtensionsPlugin({
+            esbuildCustomExtensionsPlugin({
               include: /@mpxjs/,
               extensions: [mode]
             })
@@ -222,7 +222,7 @@ export default function mpx(options: Options = {}): Plugin[] {
   if (!isProduction) {
     plugins.push(
       commonjs({
-        include: [/@mpxjs\/webpack-plugin\/lib\/utils/]
+        include: [/@mpxjs\/webpack-plugin\/lib\/utils\/env/]
       })
     )
   }

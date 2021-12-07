@@ -4,13 +4,13 @@ import { Plugin as EsbuildPlugin } from 'esbuild'
 import { Plugin } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 
-export interface AddExtensionsOptions {
+export interface CustomExtensionsOptions {
   include: string | RegExp | (string | RegExp)[]
   exclude?: string | RegExp | (string | RegExp)[]
   extensions: string[]
 }
 
-export interface EsbuildAddExtensionsOptions {
+export interface EsbuildCustomExtensionsOptions {
   include: RegExp
   extensions: string[]
 }
@@ -30,8 +30,8 @@ function genExtensionsFilePath(filename: string, extendsion: string): string {
   })
 }
 
-export function esbuildAddExtensionsPlugin(
-  options: EsbuildAddExtensionsOptions
+export function esbuildCustomExtensionsPlugin(
+  options: EsbuildCustomExtensionsOptions
 ): EsbuildPlugin {
   return {
     name: 'esbuild:mpx-custom-estensions',
@@ -56,7 +56,9 @@ export function esbuildAddExtensionsPlugin(
  * @param options - options
  * @returns vite plugin options
  */
-export function customExtensionsPlugin(options: AddExtensionsOptions): Plugin {
+export function customExtensionsPlugin(
+  options: CustomExtensionsOptions
+): Plugin {
   const filter = createFilter(options.include, options.exclude)
   return {
     name: 'vite:mpx-custom-estensions',

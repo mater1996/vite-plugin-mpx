@@ -187,6 +187,6 @@ export default async function processJSON(
     descriptor.tabBarMap = tabBarMap
     descriptor.tabBarStr = tabBarStr
   } catch (error) {
-    pluginContext.error('[mpx loader] process json error')
+    pluginContext.error(`[mpx loader] process json error: ${error}`)
   }
 }
