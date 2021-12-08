@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import { TransformPluginContext } from 'rollup'
-import { normalizePath } from '@rollup/pluginutils';
+import { normalizePath } from '@rollup/pluginutils'
 import { ResolvedOptions } from '../../index'
 import { SFCDescriptor } from '../../compiler'
 import mpx from '../../mpx'
@@ -157,20 +157,19 @@ export default async function processJSON(
       const { filename, query } = parseRequest(packagePath)
       const packageModule = await pluginContext.resolve(filename, context)
       if (packageModule) {
-        pluginContext.addWatchFile(packageModule.id)
-        const code = await fs.promises.readFile(packageModule.id, 'utf-8')
-        const descriptor = createDescriptor(
-          packageModule.id,
-          code,
-          query,
-          options
-        )
-        descriptor.jsonConfig = await resolveJson(
+        const packageId = packageModule.id
+        pluginContext.addWatchFile(packageId)
+        const code = await fs.promises.readFile(packageId, 'utf-8')
+        const descriptor = createDescriptor(packageId, code, query, options)
+        const packageJsonConfig = (descriptor.jsonConfig = await resolveJson(
           descriptor,
           options,
           pluginContext
-        )
-        await processPages(descriptor.jsonConfig.pages, packageModule.id)
+        ))
+        await processPages(packageJsonConfig.pages, packageId)
+        if (packageJsonConfig.packages) {
+          await processPackages(packageJsonConfig.packages, packageId)
+        }
       }
     }
   }

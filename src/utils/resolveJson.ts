@@ -46,7 +46,7 @@ export default async function resolveJsonFile(
     const resolveId = await pluginContext.resolve(json.src, descriptor.filename)
     if (resolveId) {
       pluginContext.addWatchFile(resolveId.id)
-      content = fs.readFileSync(resolveId.id, 'utf-8')
+      content = await fs.promises.readFile(resolveId.id, 'utf-8')
       if (resolveId.id.endsWith('.json.js')) {
         content = mpxJSON.compileMPXJSONText({
           source: content,
