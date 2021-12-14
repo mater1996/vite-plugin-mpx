@@ -1,3 +1,15 @@
+# [1.0.0-alpha.11](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.10...1.0.0-alpha.11) (2021-12-14)
+
+
+### Bug Fixes
+
+* process packages dep ([1619892](https://github.com/mater1996/vite-plugin-mpx/commit/1619892c4428d9be95d24198e366a17ba804a9fd))
+
+
+### Features
+
+* query root ([791c6ce](https://github.com/mater1996/vite-plugin-mpx/commit/791c6cee83e9186a6d5397760cf4858e382988d0))
+
 # [1.0.0-alpha.10](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.9...1.0.0-alpha.10) (2021-11-30)
 
 
