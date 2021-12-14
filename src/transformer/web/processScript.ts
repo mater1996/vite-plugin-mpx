@@ -8,6 +8,7 @@ import { resolveMpxRuntime } from '../../utils/resolveMpx'
 import resolveScriptFile from '../../utils/resolveScript'
 import omit from '../../utils/omit'
 import stringify, { shallowStringify } from '../../utils/stringify'
+import parseRequest from '../../utils/parseRequest'
 
 const optionProcessorPath = resolveMpxRuntime('optionProcessor')
 const tabBarContainerPath = resolveMpxRuntime(
@@ -37,8 +38,8 @@ export default async function processScript(
 
   const tabBarMap = descriptor.tabBarMap
   const tabBarStr = descriptor.tabBarStr
-  const localPagesMap = descriptor.localPagesMap
-  const localComponentsMap = descriptor.localComponentsMap
+  const localPagesMap = descriptor.pagesMap
+  const localComponentsMap = descriptor.componentsMap
   const builtInComponentsMap = descriptor.builtInComponentsMap
   const genericsInfo = descriptor.genericsInfo
 
@@ -109,12 +110,13 @@ export default async function processScript(
 
         // 挂载tabBar页面
         Object.keys(tabBarMap).forEach((tarbarName, index) => {
-          const pageCfg = localPagesMap[tarbarName]
-          if (pageCfg) {
+          const tabBarId = localPagesMap[tarbarName]
+          if (tabBarId) {
+            const { query } = parseRequest(tabBarId)
             tabBarPagesMap[tarbarName] = genImport(
               `__mpx_tabBar__${index}`,
-              pageCfg.resource,
-              pageCfg.async,
+              tabBarId,
+              !!query.async,
               {
                 __mpxPageroute: tarbarName
               }
@@ -134,11 +136,12 @@ export default async function processScript(
             __mpxBuiltIn: true
           })
         } else {
-          const pageCfg = localPagesMap[pagePath]
+          const pageId = localPagesMap[pagePath]
+          const { query } = parseRequest(pageId)
           pagesMap[pagePath] = genImport(
             pageVar,
-            pageCfg.resource,
-            pageCfg.async,
+            pageId,
+            !!query.async,
             {
               __mpxPageRoute: pagePath
             }
@@ -147,11 +150,12 @@ export default async function processScript(
       })
 
       Object.keys(localComponentsMap).forEach((componentName, index) => {
-        const componentCfg = localComponentsMap[componentName]
+        const componentId = localComponentsMap[componentName]
+        const { query } = parseRequest(componentId)
         componentsMap[componentName] = genImport(
           `__mpx__component__${index}`,
-          componentCfg.resource,
-          componentCfg.async
+          componentId,
+          !!query.async
         )
       })
 

@@ -13,6 +13,7 @@ export interface Query {
   lang?: string
   raw?: string
   componentId?: string
+  async?: null
   [key: string]: unknown
 }
 

@@ -22,21 +22,8 @@ export interface SFCDescriptor extends CompilerResult {
     }
   >
   genericsInfo?: Record<string, unknown>
-  localPagesMap: Record<
-    string,
-    {
-      resource: string
-      async: boolean
-      isFirst: boolean
-    }
-  >
-  localComponentsMap: Record<
-    string,
-    {
-      resource: string
-      async: boolean
-    }
-  >
+  pagesMap: Record<string, string>
+  componentsMap: Record<string, string>
   tabBarMap: Record<string, unknown>
   tabBarStr: string
 }
@@ -56,7 +43,9 @@ const compiler: Compiler = {
     const descriptor = parseComponent(template, options) as SFCDescriptor
     if (descriptor.script && descriptor.script.map) {
       const sources = descriptor.script.map.sources || []
-      descriptor.script.map.sources = sources.map((v: string) => v.split('?')[0])
+      descriptor.script.map.sources = sources.map(
+        (v: string) => v.split('?')[0]
+      )
     }
     return descriptor
   },

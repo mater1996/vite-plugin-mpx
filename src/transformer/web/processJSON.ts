@@ -4,7 +4,7 @@ import { TransformPluginContext } from 'rollup'
 import { normalizePath } from '@rollup/pluginutils'
 import { ResolvedOptions } from '../../index'
 import { SFCDescriptor } from '../../compiler'
-import mpx from '../../mpx'
+import mpxGlobal from '../../mpx'
 import resolveJson, { JsonConfig } from '../../utils/resolveJson'
 import parseRequest from '../../utils/parseRequest'
 import pathHash from '../../utils/pageHash'
@@ -24,9 +24,8 @@ export default async function processJSON(
     pluginContext
   ))
   const { filename } = descriptor
-  const { pagesMap, componentsMap, pagesEntryMap } = mpx
-  const localPagesMap: SFCDescriptor['localPagesMap'] = {}
-  const localComponentsMap: SFCDescriptor['localComponentsMap'] = {}
+  const pagesMap: SFCDescriptor['pagesMap'] = {}
+  const componentsMap: SFCDescriptor['componentsMap'] = {}
 
   let tabBarMap: Record<string, unknown> = {}
   let tabBarStr = ''
@@ -46,7 +45,7 @@ export default async function processJSON(
    * ./page/index/index.mpx = page/index/index
    * @param page - pagePath
    */
-  function genPageName(page: string, dirname: string) {
+  function genPageRoute(page: string, dirname: string) {
     const relative = path.relative(dirname, page)
     return normalizePath(
       path.join('', /^(.*?)(\.[^.]*)?$/.exec(relative)?.[1] || '')
@@ -74,32 +73,30 @@ export default async function processJSON(
     pages: JsonConfig['pages'] = [],
     importer: string
   ) => {
-    const dirname = resolveModuleContext(importer)
+    const context = resolveModuleContext(importer)
     for (const pagePath of pages) {
       const pageModule = await pluginContext.resolve(
         addQuery(pagePath, { page: null }),
         importer
       )
       if (pageModule) {
-        const { filename: pageFileName, query } = parseRequest(pageModule.id)
-        const pageName = genPageName(pageFileName, dirname)
         const pageId = pageModule.id
-        if (localPagesMap[pageName]) {
+        const { filename: pageFileName } = parseRequest(pageModule.id)
+        const pageRoute = genPageRoute(pageFileName, context)
+        if (pagesMap[pageRoute]) {
           emitWarning(
             `Current page [${pagePath}] which is imported from [${importer}] has been registered in pagesMap already, it will be ignored, please check it and remove the redundant page declaration!`
           )
           return
         }
-        pagesMap[pageId] = pageName
-        pagesEntryMap[pageId] = importer
-        localPagesMap[pageName] = {
-          resource: pageId,
-          async: query.async !== undefined,
-          isFirst: query.isFirst !== undefined
-        }
+        // record page route for resolve
+        mpxGlobal.pagesMap[pageFileName] = pageRoute
+        mpxGlobal.pagesEntryMap[pageFileName] = importer
+        // resolved page
+        pagesMap[pageRoute] = pageId
       } else {
         emitWarning(
-          `Current page [${pagePath}] is not in current pages directory [${dirname}]`
+          `Current page [${pagePath}] is not in current pages directory [${context}]`
         )
       }
     }
@@ -117,13 +114,10 @@ export default async function processJSON(
       )
       if (componetModule) {
         const componentId = componetModule.id
-        const { filename: componentFileName, query } = parseRequest(componentId)
-        componentsMap[componentFileName] =
+        const { filename: componentFileName } = parseRequest(componentId)
+        mpxGlobal.componentsMap[componentFileName] =
           componentFileName + pathHash(componentFileName)
-        localComponentsMap[componentName] = {
-          resource: componentId,
-          async: !!query.async
-        }
+        componentsMap[componentName] = componentId
       }
     }
   }
@@ -181,8 +175,8 @@ export default async function processJSON(
     await processTabBar(jsonConfig.tabBar)
     await processPackages(jsonConfig.packages, filename)
 
-    descriptor.localPagesMap = localPagesMap
-    descriptor.localComponentsMap = localComponentsMap
+    descriptor.pagesMap = pagesMap
+    descriptor.componentsMap = componentsMap
     descriptor.tabBarMap = tabBarMap
     descriptor.tabBarStr = tabBarStr
   } catch (error) {

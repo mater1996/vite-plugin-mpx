@@ -9,7 +9,11 @@ import transformMain from './transformer/main'
 import transformTemplate from './transformer/template'
 import transformStyle from './transformer/style'
 import handleHotUpdate from './handleHotUpdate'
-import { renderAppHelpCode, APP_HELPER_CODE } from './helper'
+import {
+  APP_HELPER_CODE,
+  renderAppHelpCode,
+  renderPageRouteCore
+} from './helper'
 import {
   customExtensionsPlugin,
   esbuildCustomExtensionsPlugin
@@ -111,6 +115,7 @@ function createMpxPlugin(
       if (id === APP_HELPER_CODE) {
         return id
       }
+      // return vue resolveId
       return mpxVuePlugin.resolveId?.call(this, id, ...args)
     },
 
@@ -121,6 +126,9 @@ function createMpxPlugin(
         return descriptor && renderAppHelpCode(descriptor, options)
       }
       const { filename, query } = parseRequest(id)
+      if (query.resolve !== undefined) {
+        return renderPageRouteCore(filename)
+      }
       if (query.mpx !== undefined) {
         const descriptor = getDescriptor(filename)
         if (descriptor) {
@@ -135,12 +143,14 @@ function createMpxPlugin(
           }
         }
       }
+      // return vue load
       return mpxVuePlugin.load?.call(this, id)
     },
 
     async transform(code, id) {
       const { filename, query } = parseRequest(id)
       if (!filter(filename)) return
+      if (query.resolve !== undefined) return
       if (query.mpx === undefined) {
         // mpx file => vue file
         return await transformMain(code, filename, query, options, this)
