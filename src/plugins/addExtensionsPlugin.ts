@@ -72,9 +72,9 @@ export function customExtensionsPlugin(
         skipSelf: true
       })
       if (resolution) {
+        const [filename, rawQuery] = resolution.id.split('?', 2)
         for (const extendsion of options.extensions) {
           try {
-            const [filename, rawQuery] = resolution.id.split('?', 2)
             const filePath = genExtensionsFilePath(filename, extendsion)
             await fs.promises.access(filePath)
             return `${filePath}${rawQuery ? `?${rawQuery}` : ''}`

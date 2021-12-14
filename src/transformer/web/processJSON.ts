@@ -156,15 +156,13 @@ export default async function processJSON(
         pluginContext.addWatchFile(packageId)
         const code = await fs.promises.readFile(packageId, 'utf-8')
         const descriptor = createDescriptor(packageId, code, query, options)
-        const packageJsonConfig = (descriptor.jsonConfig = await resolveJson(
+        const { pages, packages } = (descriptor.jsonConfig = await resolveJson(
           descriptor,
           options,
           pluginContext
         ))
-        await processPages(packageJsonConfig.pages, packageId, query.root)
-        if (packageJsonConfig.packages) {
-          await processPackages(packageJsonConfig.packages, packageId)
-        }
+        await processPages(pages, packageId, query.root)
+        await processPackages(packages, packageId)
       }
     }
   }
