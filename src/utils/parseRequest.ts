@@ -14,6 +14,7 @@ export interface Query {
   raw?: string
   componentId?: string
   async?: null
+  root?: string
   [key: string]: unknown
 }
 

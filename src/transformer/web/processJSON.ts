@@ -45,10 +45,10 @@ export default async function processJSON(
    * ./page/index/index.mpx = page/index/index
    * @param page - pagePath
    */
-  function genPageRoute(page: string, dirname: string) {
-    const relative = path.relative(dirname, page)
+  function genPageRoute(page: string, context: string, root = '') {
+    const relative = path.relative(context, page)
     return normalizePath(
-      path.join('', /^(.*?)(\.[^.]*)?$/.exec(relative)?.[1] || '')
+      path.join(root, /^(.*?)(\.[^.]*)?$/.exec(relative)?.[1] || '')
     )
   }
 
@@ -71,7 +71,8 @@ export default async function processJSON(
 
   const processPages = async (
     pages: JsonConfig['pages'] = [],
-    importer: string
+    importer: string,
+    root?: string
   ) => {
     const context = resolveModuleContext(importer)
     for (const pagePath of pages) {
@@ -82,7 +83,7 @@ export default async function processJSON(
       if (pageModule) {
         const pageId = pageModule.id
         const { filename: pageFileName } = parseRequest(pageModule.id)
-        const pageRoute = genPageRoute(pageFileName, context)
+        const pageRoute = genPageRoute(pageFileName, context, root)
         if (pagesMap[pageRoute]) {
           emitWarning(
             `Current page [${pagePath}] which is imported from [${importer}] has been registered in pagesMap already, it will be ignored, please check it and remove the redundant page declaration!`
@@ -160,7 +161,7 @@ export default async function processJSON(
           options,
           pluginContext
         ))
-        await processPages(packageJsonConfig.pages, packageId)
+        await processPages(packageJsonConfig.pages, packageId, query.root)
         if (packageJsonConfig.packages) {
           await processPackages(packageJsonConfig.packages, packageId)
         }

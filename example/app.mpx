@@ -15,7 +15,7 @@
   ]
 
   const packages = [
-    '@/packages/package1/app'
+    '@/packages/package1/app.mpx?root=test'
   ]
 
   module.exports = {

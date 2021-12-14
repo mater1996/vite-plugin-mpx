@@ -62,8 +62,8 @@ export default async function handleHotUpdate(
   } else {
     // reused jsonConfig and processJson's data
     descriptor.jsonConfig = prevDescriptor.jsonConfig
-    descriptor.localPagesMap = prevDescriptor.localPagesMap
-    descriptor.localComponentsMap = prevDescriptor.localComponentsMap
+    descriptor.pagesMap = prevDescriptor.pagesMap
+    descriptor.componentsMap = prevDescriptor.componentsMap
     descriptor.tabBarMap = prevDescriptor.tabBarMap
     descriptor.tabBarStr = prevDescriptor.tabBarStr
   }
