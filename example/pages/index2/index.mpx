@@ -6,6 +6,10 @@
 
 <script>
   import { createPage } from '@mpxjs/core'
+  import indexPagePath from '../index/index.mpx?resolve'
+
+  console.log(indexPagePath)
+
   createPage({
     data: {
       index: 0
