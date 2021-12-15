@@ -51,7 +51,7 @@
     "release-it": "^14.11.7",
     "rollup": "^2.60.2",
     "typescript": "^4.3.2",
-    "vite": "^2.6.14"
+    "vite": "^2.7.0"
   },
   "dependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",
@@ -69,6 +69,6 @@
   "peerDependencies": {
     "@mpxjs/webpack-plugin": "^2.6.102",
     "rollup": "^2.60.2",
-    "vite": "^2.6.14"
+    "vite": "^2.7.0"
   }
 }
