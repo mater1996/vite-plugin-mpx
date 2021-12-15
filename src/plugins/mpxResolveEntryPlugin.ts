@@ -6,11 +6,11 @@ import parseRequest from '../utils/parseRequest'
 export default function resolveEntryPlugin(): Plugin {
   const filter = createFilter([/\.mpx/])
   return {
-    name: 'vite:mpx-entry-plugin',
+    name: 'vite:mpx-resolve-entry-plugin',
     enforce: 'pre',
-    async resolveId(id, importer, options) {
-      const { filename, query } = parseRequest(id)
-      if (!filter(filename)) return
+    async resolveId(source, importer, options) {
+      if (!filter(source)) return
+      const { query } = parseRequest(source)
       if (
         query.resolve === undefined &&
         query.mpx === undefined &&
@@ -19,7 +19,7 @@ export default function resolveEntryPlugin(): Plugin {
         query.component === undefined
       ) {
         // entry mpx
-        const resolution = await this.resolve(id, importer, {
+        const resolution = await this.resolve(source, importer, {
           skipSelf: true,
           ...options
         })

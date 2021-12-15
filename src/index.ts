@@ -18,7 +18,7 @@ import {
   customExtensionsPlugin,
   esbuildCustomExtensionsPlugin
 } from './plugins/addExtensionsPlugin'
-import mpxEntryPlugin from './plugins/mpxEntryPlugin'
+import mpxResolveEntryPlugin from './plugins/mpxResolveEntryPlugin'
 import parseRequest from './utils/parseRequest'
 import processOptions from './utils/processOptions'
 import { getDescriptor } from './utils/descriptorCache'
@@ -211,7 +211,7 @@ export default function mpx(options: Options = {}): Plugin[] {
       extensions: [mode, env, env && `${mode}.${env}`].filter(Boolean)
     }),
     // ensure mpx entry point
-    mpxEntryPlugin(),
+    mpxResolveEntryPlugin(),
     // vue support for mpxjs/rumtime
     createVuePlugin(),
     replace({

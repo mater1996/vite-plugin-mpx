@@ -10,17 +10,31 @@
 <script name="json">
   // 可以写注释，通过defs注入的常量做一些判断之类的操作-->
   const pages = [
-    '@/pages/index/index?async',
-    '@/pages/index2/index'
+    {
+      src: '@/pages/index/index.mpx?async',
+      path: 'index555/index'
+    },
+    '@/pages/index2/index.mpx'
   ]
 
-  const packages = [
-    '@/packages/package1/app.mpx?root=test'
+  const packages = ['@/packages/package1/app.mpx?root=test']
+
+  const subPackages = [
+    {
+      root: 'test2',
+      pages: [
+        {
+          src: '@/packages/package2/pages/index/index.mpx',
+          path: 'index666/index'
+        }
+      ]
+    }
   ]
 
   module.exports = {
     pages,
     packages,
+    subPackages,
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',

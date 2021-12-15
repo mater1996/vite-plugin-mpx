@@ -10,7 +10,13 @@ export interface JsonConfig {
   usingComponents?: Record<string, string>
   componentGenerics?: Record<string, { default?: string }>
   packages?: string[]
-  pages?: string[]
+  pages?: (
+    | string
+    | {
+        src: string
+        path: string
+      }
+  )[]
   tabBar?: {
     custom?: boolean
     color?: string
@@ -27,6 +33,10 @@ export interface JsonConfig {
     uploadFile: number
     downloadFile: number
   }
+  subPackages: {
+    root?: 'string'
+    pages: JsonConfig['pages']
+  }[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   window?: any
   style?: string

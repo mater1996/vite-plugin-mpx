@@ -75,18 +75,22 @@ export default async function processJSON(
     root?: string
   ) => {
     const context = resolveModuleContext(importer)
-    for (const pagePath of pages) {
+    for (const page of pages) {
+      const customPage = !(typeof page === 'string')
+      const pageSrc = !customPage ? page : page.src
       const pageModule = await pluginContext.resolve(
-        addQuery(pagePath, { page: null }),
+        addQuery(pageSrc, { page: null }),
         importer
       )
       if (pageModule) {
         const pageId = pageModule.id
         const { filename: pageFileName } = parseRequest(pageModule.id)
-        const pageRoute = genPageRoute(pageFileName, context, root)
+        const pageRoute = !customPage
+          ? genPageRoute(pageFileName, context, root)
+          : page.path
         if (pagesMap[pageRoute]) {
           emitWarning(
-            `Current page [${pagePath}] which is imported from [${importer}] has been registered in pagesMap already, it will be ignored, please check it and remove the redundant page declaration!`
+            `Current page [${pageSrc}] which is imported from [${importer}] has been registered in pagesMap already, it will be ignored, please check it and remove the redundant page declaration!`
           )
           return
         }
@@ -97,7 +101,7 @@ export default async function processJSON(
         pagesMap[pageRoute] = pageId
       } else {
         emitWarning(
-          `Current page [${pagePath}] is not in current pages directory [${context}]`
+          `Current page [${pageSrc}] is not in current pages directory [${context}]`
         )
       }
     }
@@ -167,12 +171,22 @@ export default async function processJSON(
     }
   }
 
+  const processSubPackages = async (
+    subPackages: JsonConfig['subPackages'] = [],
+    context: string
+  ) => {
+    for (const subPackage of subPackages) {
+      await processPages(subPackage.pages, context, subPackage.root)
+    }
+  }
+
   try {
     await processPages(jsonConfig.pages, filename)
     await processComponents(jsonConfig.usingComponents, filename)
     await processGenerics(jsonConfig.componentGenerics, filename)
     await processTabBar(jsonConfig.tabBar)
     await processPackages(jsonConfig.packages, filename)
+    await processSubPackages(jsonConfig.subPackages, filename)
 
     descriptor.pagesMap = pagesMap
     descriptor.componentsMap = componentsMap

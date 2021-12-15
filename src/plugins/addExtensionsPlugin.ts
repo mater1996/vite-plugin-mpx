@@ -3,7 +3,6 @@ import fs from 'fs'
 import { Plugin as EsbuildPlugin } from 'esbuild'
 import { Plugin } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
-
 export interface CustomExtensionsOptions {
   include: string | RegExp | (string | RegExp)[]
   exclude?: string | RegExp | (string | RegExp)[]
@@ -65,11 +64,11 @@ export function customExtensionsPlugin(
     // https://github.com/vitejs/vite/issues/3705
     // resolveId() is hookFirst - first non-null result is returned.
     enforce: 'pre',
-
-    async resolveId(source, importer) {
+    async resolveId(source, importer, o) {
       if (!filter(source)) return
       const resolution = await this.resolve(source, importer, {
-        skipSelf: true
+        skipSelf: true,
+        ...o
       })
       if (resolution) {
         const [filename, rawQuery] = resolution.id.split('?', 2)

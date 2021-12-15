@@ -62,7 +62,7 @@ export function renderAppHelpCode(
     `global.__mpxPageConfig = ${stringify(jsonConfig.window || {})}`
   )
 
-  if (i18n) {
+  if (i18n && !option.forceDisableInject) {
     content.unshift(`import VueI18n from 'vue-i18n'`)
     content.push(`Vue.use(VueI18n)`)
     const i18nObj = Object.assign({}, i18n)
