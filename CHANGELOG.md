@@ -1,3 +1,10 @@
+# [1.0.0-alpha.12](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.11...1.0.0-alpha.12) (2021-12-16)
+
+
+### Features
+
+* custom page and subpackages ([ac976a9](https://github.com/mater1996/vite-plugin-mpx/commit/ac976a9302f08b79bc3f9b8236e9699aa3db0a49))
+
 # [1.0.0-alpha.11](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.10...1.0.0-alpha.11) (2021-12-14)
 
 
