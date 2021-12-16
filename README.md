@@ -36,8 +36,3 @@ new Vue({
   }
 })
 ```
-
-## Todo
-
-- Sourcemap
-- Packages
