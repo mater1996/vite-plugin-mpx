@@ -1,16 +1,14 @@
 import { TransformPluginContext, TransformResult } from 'rollup'
 import { transformMain as vueTransformMain } from 'vite-plugin-vue2/dist/main'
-import processTemplate from './web/processTemplate'
-import processJSON from './web/processJSON'
-import processStyles from './web/processStyles'
-import processScript from './web/processScript'
+import { genScriptBlock } from './script'
+import { genTemplateBlock, processTemplate } from './template'
+import { genStylesBlock } from './style'
+import { processJSON } from './json'
 import { ResolvedOptions } from '../index'
-import { SFCDescriptor } from '../compiler'
 import { createDescriptor } from '../utils/descriptorCache'
 import { Query } from '../utils/parseRequest'
-import { ProcessResult } from './web/process'
 
-export default async function transformMain(
+export async function transformMain(
   code: string,
   filename: string,
   query: Query,
@@ -19,18 +17,17 @@ export default async function transformMain(
 ): Promise<TransformResult | undefined> {
   const descriptor = createDescriptor(filename, code, query, options)
   if (descriptor) {
+    // set pages/component to descriptor
     await processJSON(descriptor, options, pluginContext)
-    // generate template block
-    const templateBlock = await genTemplateCode(
-      descriptor,
-      options,
-      pluginContext
-    )
+    // set builtInComponent/genericsInfo to descriptor
+    processTemplate(descriptor, options, pluginContext)
+    // generate template block, delay transform template
+    const templateBlock = genTemplateBlock(descriptor)
     // generate script block
-    const scriptBlock = await genScriptCode(descriptor, options, pluginContext)
-    // generate styles block
-    const stylesBlock = await genStylesCode(descriptor)
-    // transform vue
+    const scriptBlock = await genScriptBlock(descriptor, options, pluginContext)
+    // generate styles block, delay transform style
+    const stylesBlock = genStylesBlock(descriptor)
+    // transform to vue
     const vueCode = await vueTransformMain(
       genVueSfc(templateBlock, scriptBlock, stylesBlock),
       filename,
@@ -44,26 +41,6 @@ export default async function transformMain(
   }
 }
 
-function genVueSfc(...args: ProcessResult[]) {
+function genVueSfc(...args: { output: string }[]) {
   return args.map((v) => v.output).join('\n')
-}
-
-async function genTemplateCode(
-  descriptor: SFCDescriptor,
-  options: ResolvedOptions,
-  pluginContext: TransformPluginContext
-) {
-  return await processTemplate(descriptor, options, pluginContext)
-}
-
-async function genStylesCode(descriptor: SFCDescriptor) {
-  return await processStyles(descriptor)
-}
-
-async function genScriptCode(
-  descriptor: SFCDescriptor,
-  options: ResolvedOptions,
-  pluginContext: TransformPluginContext
-) {
-  return await processScript(descriptor, options, pluginContext)
 }

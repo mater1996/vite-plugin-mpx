@@ -13,8 +13,6 @@ function genDescriptorTemplate() {
     tag: 'template',
     type: 'template',
     content: '<div class="app"><router-view class="page"></router-view></div>',
-    vueContent:
-      '<div class="app"><router-view class="page"></router-view></div>',
     attrs: {},
     start: 0,
     end: 0

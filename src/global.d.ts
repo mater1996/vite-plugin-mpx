@@ -4,7 +4,9 @@ declare module '@mpxjs/webpack-plugin/lib/web/processStyles'
 declare module '@mpxjs/webpack-plugin/lib/web/processScript'
 declare module '@mpxjs/webpack-plugin/lib/utils/mpx-json'
 declare module '@mpxjs/webpack-plugin/lib/parser'
+declare module '@mpxjs/webpack-plugin/lib/platform/template/wx/component-config/index'
 declare module 'rollup-plugin-node-globals'
+declare module 'hypertag/hypertag'
 
 declare module '@mpxjs/webpack-plugin/lib/utils/to-posix' {
   export default function (path: string): string
@@ -47,7 +49,6 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
     type: 'template'
     lang?: string
     mode?: Mode
-    vueContent: string
   }
 
   export interface Script extends SFCBlock {

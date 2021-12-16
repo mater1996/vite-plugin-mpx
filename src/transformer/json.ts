@@ -1,19 +1,102 @@
-import path from 'path'
-import fs from 'fs'
 import { TransformPluginContext } from 'rollup'
+import fs from 'fs'
+import json5 from 'json5'
+import mpxJSON from '@mpxjs/webpack-plugin/lib/utils/mpx-json'
+import { ResolvedOptions } from '../index'
+import { SFCDescriptor } from '../compiler'
+import path from 'path'
 import { normalizePath } from '@rollup/pluginutils'
-import { ResolvedOptions } from '../../index'
-import { SFCDescriptor } from '../../compiler'
-import mpxGlobal from '../../mpx'
-import resolveJson, { JsonConfig } from '../../utils/resolveJson'
-import parseRequest from '../../utils/parseRequest'
-import pathHash from '../../utils/pageHash'
-import resolveModuleContext from '../../utils/resolveModuleContext'
-import addQuery from '../../utils/addQuery'
-import { createDescriptor } from '../../utils/descriptorCache'
-import stringify from '../../utils/stringify'
+import mpxGlobal from '../mpx'
+import parseRequest from '../utils/parseRequest'
+import pathHash from '../utils/pageHash'
+import resolveModuleContext from '../utils/resolveModuleContext'
+import addQuery from '../utils/addQuery'
+import { createDescriptor } from '../utils/descriptorCache'
+import stringify from '../utils/stringify'
 
-export default async function processJSON(
+/**
+ * wechat miniprogram app/page/component config type
+ */
+export interface JsonConfig {
+  component?: boolean
+  usingComponents?: Record<string, string>
+  componentGenerics?: Record<string, { default?: string }>
+  packages?: string[]
+  pages?: (
+    | string
+    | {
+        src: string
+        path: string
+      }
+  )[]
+  tabBar?: {
+    custom?: boolean
+    color?: string
+    selectedColor?: string
+    backgroundColor?: string
+    list?: {
+      pagePath: string
+      text: string
+    }[]
+  }
+  networkTimeout?: {
+    request: number
+    connectSocket: number
+    uploadFile: number
+    downloadFile: number
+  }
+  subPackages: {
+    root?: 'string'
+    pages: JsonConfig['pages']
+  }[]
+  window?: Record<string, unknown>
+  style?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  singlePage?: any
+}
+
+/**
+ * resolve json content
+ * @param descriptor - SFCDescriptor
+ * @param options - ResolvedOptions
+ * @param pluginContext - TransformPluginContext
+ * @returns json config
+ */
+export async function resolveJson(
+  descriptor: SFCDescriptor,
+  options: ResolvedOptions,
+  pluginContext: TransformPluginContext
+): Promise<JsonConfig> {
+  const { defs } = options
+  const { json } = descriptor
+  let content = json?.content || '{}'
+  if (json?.src) {
+    const resolution = await pluginContext.resolve(
+      json.src,
+      descriptor.filename
+    )
+    if (resolution) {
+      pluginContext.addWatchFile(resolution.id)
+      content = await fs.promises.readFile(resolution.id, 'utf-8')
+      if (resolution.id.endsWith('.json.js')) {
+        content = mpxJSON.compileMPXJSONText({
+          source: content,
+          defs,
+          filePath: resolution.id
+        })
+      }
+    }
+  }
+  return json5.parse(content)
+}
+
+/**
+ * dep entry/packages/sub-packages to collect pages/components/tabbar
+ * @param descriptor - SFCDescriptor
+ * @param options - ResolvedOptions
+ * @param pluginContext - TransformPluginContext
+ */
+export async function processJSON(
   descriptor: SFCDescriptor,
   options: ResolvedOptions,
   pluginContext: TransformPluginContext
@@ -182,11 +265,11 @@ export default async function processJSON(
 
   try {
     await processPages(jsonConfig.pages, filename)
+    await processPackages(jsonConfig.packages, filename)
+    await processSubPackages(jsonConfig.subPackages, filename)
     await processComponents(jsonConfig.usingComponents, filename)
     await processGenerics(jsonConfig.componentGenerics, filename)
     await processTabBar(jsonConfig.tabBar)
-    await processPackages(jsonConfig.packages, filename)
-    await processSubPackages(jsonConfig.subPackages, filename)
 
     descriptor.pagesMap = pagesMap
     descriptor.componentsMap = componentsMap

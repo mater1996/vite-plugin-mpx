@@ -2,13 +2,12 @@ import { HmrContext, ModuleNode } from 'vite'
 import _debug from 'debug'
 import { SFCBlock } from './compiler'
 import { ResolvedOptions } from './index'
-import processTemplate from './transformer/web/processTemplate'
-import processStyles from './transformer/web/processStyles'
 import {
   getDescriptor,
   setPrevDescriptor,
   createDescriptor
 } from './utils/descriptorCache'
+import { processTemplate } from './transformer/template'
 
 const debug = _debug('vite:hmr')
 
@@ -35,7 +34,6 @@ export default async function handleHotUpdate(
     content,
     // mock query
     {
-      app: prevDescriptor.app ? null : undefined,
       page: prevDescriptor.page ? null : undefined,
       component: prevDescriptor.component ? null : undefined
     },
@@ -76,8 +74,8 @@ export default async function handleHotUpdate(
   let needRerender = false
   if (!isEqualBlock(descriptor.template, prevDescriptor.template)) {
     needRerender = true
-    await processTemplate(descriptor, options) // update descriptor template vue content
     affectedModules.add(templateModule)
+    processTemplate(descriptor, options) // recollect
     if (
       !isEqualObject(
         descriptor.builtInComponentsMap,
@@ -87,9 +85,6 @@ export default async function handleHotUpdate(
       affectedModules.add(mainModule)
     }
   } else {
-    if (descriptor.template && prevDescriptor.template) {
-      descriptor.template.vueContent = prevDescriptor.template.vueContent
-    }
     descriptor.builtInComponentsMap = prevDescriptor.builtInComponentsMap
     descriptor.genericsInfo = prevDescriptor.genericsInfo
   }
@@ -143,7 +138,6 @@ export default async function handleHotUpdate(
 
   if (didUpdateStyle) {
     // update descriptor styles vue content
-    await processStyles(descriptor)
     updateType.push(`style`)
   }
 
@@ -163,7 +157,7 @@ export function isEqualObject(
   if (keysA.length !== keysB.length) {
     return false
   }
-  return keysA.every((key) => a[key] === b[key])
+  return keysA.every((key) => b[key])
 }
 
 export function isEqualBlock(a: SFCBlock | null, b: SFCBlock | null): boolean {

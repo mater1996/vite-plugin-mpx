@@ -5,9 +5,9 @@ import replace from '@rollup/plugin-replace'
 import nodePolyfills from 'rollup-plugin-polyfill-node'
 import commonjs from '@rollup/plugin-commonjs'
 import mpxGlobal from './mpx'
-import transformMain from './transformer/main'
-import transformTemplate from './transformer/template'
-import transformStyle from './transformer/style'
+import { transformMain } from './transformer/main'
+import { transformTemplate } from './transformer/template'
+import { transformStyle } from './transformer/style'
 import handleHotUpdate from './handleHotUpdate'
 import {
   APP_HELPER_CODE,
