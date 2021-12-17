@@ -4,6 +4,7 @@ import { Query } from './parseRequest'
 import pathHash from './pageHash'
 import { ResolvedOptions } from '../index'
 import compiler, { SFCBlock, SFCDescriptor } from '../compiler'
+import ensureArray from './ensureArray'
 
 const cache = new Map<string, SFCDescriptor>()
 const prevCache = new Map<string, SFCDescriptor | undefined>()
@@ -48,8 +49,7 @@ createComponent({})`
 }
 
 function normalizeBlock(block: SFCBlock | SFCBlock[] | null) {
-  const blocks = block ? (Array.isArray(block) ? block : [block]) : []
-  blocks.forEach((b) => {
+  ensureArray(block).forEach((b) => {
     b.content = '\n' + b.content.replace(/^\n*/m, '')
   })
 }
