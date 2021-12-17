@@ -1,5 +1,6 @@
 import mpxCompiler, {
-  CompilerResult
+  CompilerResult,
+  ParseResult
 } from '@mpxjs/webpack-plugin/lib/template-compiler/compiler'
 import parseComponent from '@mpxjs/webpack-plugin/lib/parser'
 import { JsonConfig } from './transformer/json'
@@ -33,8 +34,7 @@ interface Compiler {
     template: string,
     options: Parameters<MpxCompiler['parseComponent']>[1]
   ): SFCDescriptor
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parse(template: string, options: Parameters<MpxCompiler['parse']>[1]): any
+  parse(template: string, options: Parameters<MpxCompiler['parse']>[1]): ParseResult
   serialize: MpxCompiler['serialize']
 }
 

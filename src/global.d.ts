@@ -4,9 +4,7 @@ declare module '@mpxjs/webpack-plugin/lib/web/processStyles'
 declare module '@mpxjs/webpack-plugin/lib/web/processScript'
 declare module '@mpxjs/webpack-plugin/lib/utils/mpx-json'
 declare module '@mpxjs/webpack-plugin/lib/parser'
-declare module '@mpxjs/webpack-plugin/lib/platform/template/wx/component-config/index'
 declare module 'rollup-plugin-node-globals'
-declare module 'hypertag/hypertag'
 
 declare module '@mpxjs/webpack-plugin/lib/utils/to-posix' {
   export default function (path: string): string
@@ -78,6 +76,15 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
     customBlocks: []
   }
 
+  export interface ParseResult {
+    meta: {
+      builtInComponentsMap?: Record<string, string>,
+      genericsInfo?: Record<string, unknown>
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    root: any
+  }
+
   interface Compiler {
     parseComponent(
       template: string,
@@ -114,7 +121,7 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
         filePath: string
         globalComponents: string[]
       }
-    ): unknown
+    ): ParseResult
     serialize(root: unknown): string
   }
 

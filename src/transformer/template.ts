@@ -87,7 +87,6 @@ export function processTemplate(
       addBuildComponent('mpx-keep-alive', mpxKeepAlivePath)
       templateTransformCache[filename] = template.content
     } else {
-      const templateSrcMode = template.mode || srcMode
       const parsed = templateCompiler.parse(template.content, {
         warn: (msg) => {
           pluginContext?.warn(
@@ -104,7 +103,7 @@ export function processTemplate(
         basename: path.basename(filename),
         isComponent: !app,
         mode,
-        srcMode: templateSrcMode,
+        srcMode: template.mode || srcMode,
         defs,
         decodeHTMLText,
         externalClasses,
@@ -118,9 +117,7 @@ export function processTemplate(
 
       if (parsed.meta.builtInComponentsMap) {
         Object.entries(parsed.meta.builtInComponentsMap).forEach(
-          ([name, resource]) => {
-            addBuildComponent(name, resource as string)
-          }
+          ([name, resource]) => addBuildComponent(name, resource)
         )
       }
 
