@@ -76,13 +76,17 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
     customBlocks: []
   }
 
+  export interface ParseHtmlNode {
+    type: number
+    tag: string
+    children: ParseHtmlNode[]
+  }
   export interface ParseResult {
     meta: {
-      builtInComponentsMap?: Record<string, string>,
+      builtInComponentsMap?: Record<string, string>
       genericsInfo?: Record<string, unknown>
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    root: any
+    }
+    root: ParseHtmlNode
   }
 
   interface Compiler {
@@ -122,7 +126,7 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
         globalComponents: string[]
       }
     ): ParseResult
-    serialize(root: unknown): string
+    serialize(root: ParseHtmlNode): string
   }
 
   declare const compiler: Compiler

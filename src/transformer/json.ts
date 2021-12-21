@@ -51,8 +51,9 @@ export interface JsonConfig {
   }[]
   window?: Record<string, unknown>
   style?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  singlePage?: any
+  singlePage?: {
+    navigationBarFit: boolean
+  }
 }
 
 /**

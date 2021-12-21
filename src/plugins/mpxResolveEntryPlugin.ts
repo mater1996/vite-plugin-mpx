@@ -6,7 +6,7 @@ import parseRequest from '../utils/parseRequest'
 export default function resolveEntryPlugin(): Plugin {
   const filter = createFilter([/\.mpx/])
   return {
-    name: 'vite:mpx-resolve-entry-plugin',
+    name: 'vite:mpx-resolve-entry',
     enforce: 'pre',
     async resolveId(source, importer, options) {
       if (!filter(source)) return

@@ -2,6 +2,7 @@ import path from 'path'
 import { TransformPluginContext } from 'rollup'
 import { TransformResult } from 'vite'
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
+import { ParseHtmlNode } from '@mpxjs/webpack-plugin/lib/template-compiler/compiler'
 import { compileSFCTemplate as vueTransformTemplate } from 'vite-plugin-vue2/dist/template'
 import { ResolvedOptions } from '../index'
 import templateCompiler, { SFCDescriptor } from '../compiler'
@@ -9,12 +10,9 @@ import { resolveMpxRuntime } from '../utils/resolveMpx'
 
 const templateTransformCache: Record<string, string> = {}
 
-function calculateRootEleChild(arr: []) {
-  if (!arr) {
-    return 0
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return arr.reduce((total: number, item: any) => {
+function calculateRootEleChild(arr: ParseHtmlNode[]) {
+  if (!arr) return 0
+  return arr.reduce((total: number, item: ParseHtmlNode) => {
     if (item.type === 1) {
       if (item.tag === 'template') {
         total += calculateRootEleChild(item.children)
@@ -121,9 +119,7 @@ export function processTemplate(
         )
       }
 
-      if (parsed.meta.genericsInfo) {
-        genericsInfo = parsed.meta.genericsInfo
-      }
+      genericsInfo = parsed.meta.genericsInfo
 
       if (parsed.root.tag === 'temp-node') {
         const childLen = calculateRootEleChild(parsed.root.children)
