@@ -1,4 +1,4 @@
-import { ResolvedOptions } from './index'
+import { ResolvedOptions } from './options'
 import mpxGlobal from './mpx'
 import { SFCDescriptor } from './compiler'
 import stringify from './utils/stringify'
@@ -7,7 +7,7 @@ import addQuery from './utils/addQuery'
 export const ENTRY_HELPER_CODE = 'plugin-mpx:entry-helper'
 export const APP_HELPER_CODE = 'plugin-mpx:app-helper'
 
-export const renderPageRouteCore = (importer: string): string => {
+export const renderPageRouteCode = (importer: string): string => {
   return `export default ${stringify(mpxGlobal.pagesMap[importer])}`
 }
 

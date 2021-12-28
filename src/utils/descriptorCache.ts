@@ -2,7 +2,7 @@ import path from 'path'
 import slash from 'slash'
 import { Query } from './parseRequest'
 import pathHash from './pageHash'
-import { ResolvedOptions } from '../index'
+import { ResolvedOptions } from '../options'
 import compiler, { SFCBlock, SFCDescriptor } from '../compiler'
 import ensureArray from './ensureArray'
 

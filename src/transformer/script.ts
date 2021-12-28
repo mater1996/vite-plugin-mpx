@@ -1,7 +1,7 @@
 import fs from 'fs'
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
 import { TransformPluginContext } from 'rollup'
-import { ResolvedOptions } from '../index'
+import { ResolvedOptions } from '../options'
 import { SFCDescriptor } from '../compiler'
 import { APP_HELPER_CODE } from '../helper'
 import { resolveMpxRuntime } from '../utils/resolveMpx'

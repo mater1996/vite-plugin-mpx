@@ -4,7 +4,7 @@ import { TransformResult } from 'vite'
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
 import { ParseHtmlNode } from '@mpxjs/webpack-plugin/lib/template-compiler/compiler'
 import { compileSFCTemplate as vueTransformTemplate } from 'vite-plugin-vue2/dist/template'
-import { ResolvedOptions } from '../index'
+import { ResolvedOptions } from '../options'
 import templateCompiler, { SFCDescriptor } from '../compiler'
 import { resolveMpxRuntime } from '../utils/resolveMpx'
 

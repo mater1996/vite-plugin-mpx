@@ -1,4 +1,4 @@
-import { Plugin, UserConfig, ViteDevServer } from 'vite'
+import { Plugin, UserConfig } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 import { createVuePlugin } from 'vite-plugin-vue2'
 import replace from '@rollup/plugin-replace'
@@ -12,69 +12,18 @@ import handleHotUpdate from './handleHotUpdate'
 import {
   APP_HELPER_CODE,
   renderAppHelpCode,
-  renderPageRouteCore
+  renderPageRouteCode
 } from './helper'
+import { processOptions, Options, ResolvedOptions } from './options'
 import {
   customExtensionsPlugin,
   esbuildCustomExtensionsPlugin
 } from './plugins/addExtensionsPlugin'
 import mpxResolveEntryPlugin from './plugins/mpxResolveEntryPlugin'
 import parseRequest from './utils/parseRequest'
-import processOptions from './utils/processOptions'
 import { getDescriptor } from './utils/descriptorCache'
 import { stringifyObject } from './utils/stringify'
 import ensureArray from './utils/ensureArray'
-
-export type Mode = 'wx' | 'web' | 'ali' | 'swan'
-
-export interface Options {
-  include?: string | RegExp | (string | RegExp)[]
-  exclude?: string | RegExp | (string | RegExp)[]
-  mode?: Mode
-  env?: string
-  srcMode?: Mode
-  externalClasses?: string[]
-  resolveMode?: 'webpack' | 'native'
-  writeMode?: 'changed' | 'full' | null
-  autoScopeRules?: Record<string, unknown>
-  autoVirtualHostRules?: Record<string, unknown>
-  forceDisableInject?: boolean
-  forceDisableProxyCtor?: boolean
-  transMpxRules?: Record<string, () => boolean>
-  defs?: Record<string, unknown>
-  modeRules?: Record<string, unknown>
-  generateBuildMap?: false
-  attributes?: string[]
-  externals?: string[] | RegExp[]
-  projectRoot?: string
-  forceUsePageCtor?: boolean
-  postcssInlineConfig?: Record<string, unknown>
-  transRpxRules?: null
-  auditResource?: boolean
-  decodeHTMLText?: boolean
-  nativeOptions?: Record<string, unknown>
-  i18n?: Record<string, string> | null
-  checkUsingComponents?: boolean
-  reportSize?: boolean | null
-  pathHashMode?:
-    | 'absolute'
-    | 'relative'
-    | ((resourcePath: string, projectRoot: string) => string)
-  forceDisableBuiltInLoader?: boolean
-  useRelativePath?: boolean
-  subpackageModulesRules?: Record<string, unknown>
-  forceMainPackageRules?: Record<string, unknown>
-  forceProxyEventRules?: Record<string, unknown>
-  miniNpmPackages?: string[]
-  fileConditionRules?: string | RegExp | (string | RegExp)[]
-}
-
-export interface ResolvedOptions extends Required<Options> {
-  sourceMap?: boolean
-  devServer?: ViteDevServer
-  root: string
-  isProduction: boolean
-}
 
 function createMpxPlugin(
   options: ResolvedOptions,
@@ -127,7 +76,7 @@ function createMpxPlugin(
       }
       const { filename, query } = parseRequest(id)
       if (query.resolve !== undefined) {
-        return renderPageRouteCore(filename)
+        return renderPageRouteCode(filename)
       }
       if (query.mpx !== undefined) {
         const descriptor = getDescriptor(filename)
