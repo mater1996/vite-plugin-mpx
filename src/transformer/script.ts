@@ -54,7 +54,7 @@ export function transformScript(
 
   const content = []
 
-  const genImport = (
+  const getComponent = (
     varString: string,
     resource: string,
     async = false,
@@ -91,7 +91,7 @@ export function transformScript(
 
   if (tabBar && tabBarMap) {
     // 挂载tabBar组件
-    tabBarPagesMap['mpx-tab-bar'] = genImport(
+    tabBarPagesMap['mpx-tab-bar'] = getComponent(
       '__mpxTabBar',
       tabBar.custom ? customBarPath : tabBarPath
     )
@@ -101,7 +101,7 @@ export function transformScript(
       const tabBarId = localPagesMap[tarbarName]
       if (tabBarId) {
         const { query } = parseRequest(tabBarId)
-        tabBarPagesMap[tarbarName] = genImport(
+        tabBarPagesMap[tarbarName] = getComponent(
           `__mpx_tabBar__${index}`,
           tabBarId,
           !!query.async,
@@ -120,13 +120,13 @@ export function transformScript(
   Object.keys(localPagesMap).forEach((pagePath, index) => {
     const pageVar = `__mpx__page__${index}`
     if (tabBarMap && tabBarMap[pagePath]) {
-      pagesMap[pagePath] = genImport(pageVar, tabBarContainerPath, false, {
+      pagesMap[pagePath] = getComponent(pageVar, tabBarContainerPath, false, {
         __mpxBuiltIn: true
       })
     } else {
       const pageId = localPagesMap[pagePath]
       const { query } = parseRequest(pageId)
-      pagesMap[pagePath] = genImport(pageVar, pageId, !!query.async, {
+      pagesMap[pagePath] = getComponent(pageVar, pageId, !!query.async, {
         __mpxPageRoute: pagePath
       })
     }
@@ -135,7 +135,7 @@ export function transformScript(
   Object.keys(localComponentsMap).forEach((componentName, index) => {
     const componentId = localComponentsMap[componentName]
     const { query } = parseRequest(componentId)
-    componentsMap[componentName] = genImport(
+    componentsMap[componentName] = getComponent(
       `__mpx__component__${index}`,
       componentId,
       !!query.async
@@ -144,7 +144,7 @@ export function transformScript(
 
   Object.keys(builtInComponentsMap).forEach((componentName, index) => {
     const componentCfg = builtInComponentsMap[componentName]
-    componentsMap[componentName] = genImport(
+    componentsMap[componentName] = getComponent(
       `__mpx__builtInComponent__${index}`,
       componentCfg.resource,
       false,
