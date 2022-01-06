@@ -17,12 +17,12 @@ const tabBarPath = resolveMpxRuntime('components/web/mpx-tab-bar.vue')
 const customBarPath = './custom-tab-bar/index'
 
 /**
- * transfrom mpx script to vue script
+ * transfrom mpx script
  * @param code - mpx script content
  * @param descriptor - SFCDescriptor
  * @param options - ResolvedOptions
  * @param pluginContext - TransformPluginContext
- * @returns vue content
+ * @returns script content
  */
 export function transformScript(
   code: string,
@@ -90,13 +90,11 @@ export function transformScript(
   const tabBarPagesMap: Record<string, string> = {}
 
   if (tabBar && tabBarMap) {
-    // 挂载tabBar组件
     tabBarPagesMap['mpx-tab-bar'] = getComponent(
       '__mpxTabBar',
       tabBar.custom ? customBarPath : tabBarPath
     )
 
-    // 挂载tabBar页面
     Object.keys(tabBarMap).forEach((tarbarName, index) => {
       const tabBarId = localPagesMap[tarbarName]
       if (tabBarId) {
