@@ -28,9 +28,10 @@
   }
 </script>
 
-<style scoped>
+<style>
   div {
     color: red;
+    font-size: 30rpx
   }
   a {
     color: red;

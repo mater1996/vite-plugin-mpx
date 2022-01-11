@@ -231,7 +231,7 @@ export async function genScriptBlock(
   return {
     output: genComponentTag(descriptor.script, {
       attrs(script) {
-        const attrs = Object.assign({}, script?.attrs)
+        const attrs = { ...script?.attrs }
         delete attrs.src
         return attrs
       },
