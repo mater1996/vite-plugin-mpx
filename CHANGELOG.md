@@ -1,3 +1,10 @@
+# [1.0.0-alpha.15](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.13...1.0.0-alpha.15) (2022-03-21)
+
+
+### Bug Fixes
+
+* global polyfill ([4f7707d](https://github.com/mater1996/vite-plugin-mpx/commit/4f7707d6ed0955f1a013885a691f2c6794aa627f))
+
 # [1.0.0-alpha.13](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.12...1.0.0-alpha.13) (2022-03-21)
 
 
