@@ -62,6 +62,7 @@
     "json5": "^2.2.0",
     "magic-string": "^0.26.1",
     "qs": "^6.10.1",
+    "rollup-plugin-polyfill-node": "^0.8.0",
     "slash": "^3.0.0",
     "vite-plugin-vue2": "^1.9.0",
     "vue-template-compiler": "^2.6.14"

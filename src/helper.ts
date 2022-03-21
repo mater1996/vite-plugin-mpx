@@ -38,7 +38,6 @@ export function renderAppHelpCode(
     `import ObserveDOM from '@better-scroll/observe-dom'`
   )
   content.push(
-    `window.global = window`,
     `Vue.use(VueRouter)`,
     `BScroll.use(ObserveDOM)`,
     `BScroll.use(PullDown)`,
