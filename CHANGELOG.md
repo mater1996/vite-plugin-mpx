@@ -1,3 +1,10 @@
+# [1.0.0-alpha.16](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.15...1.0.0-alpha.16) (2022-03-21)
+
+
+### Bug Fixes
+
+* ts sourcemap and remove style sourcemap ([8cc8659](https://github.com/mater1996/vite-plugin-mpx/commit/8cc8659f556c343cbddfed2f3d49b1243838853b))
+
 # [1.0.0-alpha.15](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.13...1.0.0-alpha.15) (2022-03-21)
 
 
