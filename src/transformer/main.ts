@@ -1,6 +1,6 @@
 import { TransformPluginContext, TransformResult } from 'rollup'
 import { transformMain as vueTransformMain } from 'vite-plugin-vue2/dist/main'
-import { genScriptBlock } from './script'
+import { genScriptBlock, transformScript } from './script'
 import { genTemplateBlock, processTemplate } from './template'
 import { genStylesBlock } from './style'
 import { processJSON } from './json'
@@ -23,12 +23,18 @@ export async function transformMain(
     processTemplate(descriptor, options, pluginContext)
     // generate template block, delay transform template
     const templateBlock = genTemplateBlock(descriptor)
+    // transform script
+    const { code, map } = await transformScript(
+      descriptor,
+      options,
+      pluginContext
+    )
     // generate script block
-    const scriptBlock = await genScriptBlock(descriptor, options, pluginContext)
+    const scriptBlock = await genScriptBlock(descriptor, code)
     // generate styles block, delay transform style
     const stylesBlock = genStylesBlock(descriptor)
     // transform to vue
-    const vueCode = await vueTransformMain(
+    const { code: vueCode } = await vueTransformMain(
       genVueSfc(templateBlock, scriptBlock, stylesBlock),
       filename,
       options,
@@ -36,8 +42,13 @@ export async function transformMain(
     )
     // replace "*.mpx?vue" to "*.mpx?mpx"
     // this way mpx does not enter the logic of the Vueplugin
-    vueCode.code = vueCode.code.replace(/(\.mpx)(\?vue)/g, `$1?mpx`)
-    return vueCode
+    // replace all \/\/\n for sourceMap
+    return {
+      code: vueCode
+        .replace(/(\.mpx)(\?vue)/g, `$1?mpx`)
+        .replace(/^(\/\/\n)*/, ''),
+      map: map
+    }
   }
 }
 

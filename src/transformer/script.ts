@@ -1,6 +1,7 @@
 import fs from 'fs'
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
-import { TransformPluginContext } from 'rollup'
+import { SourceMap, TransformPluginContext } from 'rollup'
+import MagicString from 'magic-string'
 import { ResolvedOptions } from '../options'
 import { SFCDescriptor } from '../compiler'
 import { APP_HELPER_CODE } from '../helper'
@@ -16,6 +17,16 @@ const tabBarContainerPath = resolveMpxRuntime(
 const tabBarPath = resolveMpxRuntime('components/web/mpx-tab-bar.vue')
 const customBarPath = './custom-tab-bar/index'
 
+const APP_CODE = [
+  `import "${APP_HELPER_CODE}"`,
+  `import Vue from "vue"`,
+  `import VueRouter from "vue-router"`
+].join('\n')
+
+const I18N_CODE = `import { i18n } from "${APP_HELPER_CODE}"`
+
+const OPTION_PROCESSOR_CODE = `import processOption, { getComponent, getWxsMixin } from "${optionProcessorPath}"`
+
 /**
  * transfrom mpx script
  * @param code - mpx script content
@@ -24,12 +35,16 @@ const customBarPath = './custom-tab-bar/index'
  * @param pluginContext - TransformPluginContext
  * @returns script content
  */
-export function transformScript(
-  code: string,
+export async function transformScript(
   descriptor: SFCDescriptor,
   options: ResolvedOptions,
   pluginContext: TransformPluginContext
-): string {
+): Promise<{
+  code: string
+  map: SourceMap
+}> {
+  const code = await resolveScript(descriptor, options, pluginContext)
+  const s = new MagicString(code)
   const { id: componentId, app, page, jsonConfig, filename } = descriptor
   const tabBarMap = descriptor.tabBarMap
   const tabBarStr = descriptor.tabBarStr
@@ -52,7 +67,7 @@ export function transformScript(
     )
   }
 
-  const content = []
+  const components: string[] = []
 
   const getComponent = (
     varString: string,
@@ -61,7 +76,7 @@ export function transformScript(
     options: unknown = {}
   ) => {
     if (!async) {
-      content.push(`import ${varString} from ${stringify(resource)}`)
+      components.push(`import ${varString} from ${stringify(resource)}`)
       return `getComponent(${varString}, ${stringify(options)})`
     } else {
       return `() => import("${resource}").then(${varString} => getComponent(${varString}.default, ${stringify(
@@ -70,20 +85,6 @@ export function transformScript(
       )`
     }
   }
-
-  if (app) {
-    content.push(`import "${APP_HELPER_CODE}"`)
-    content.push(`import Vue from "vue"`)
-    content.push(`import VueRouter from "vue-router"`)
-  }
-
-  if (i18n) {
-    content.push(`import { i18n } from "${APP_HELPER_CODE}"`)
-  }
-
-  content.push(
-    `import processOption, { getComponent, getWxsMixin } from "${optionProcessorPath}"`
-  )
 
   const pagesMap: Record<string, string> = {}
   const componentsMap: Record<string, string> = {}
@@ -154,39 +155,52 @@ export function transformScript(
     ? omit(jsonConfig, ['usingComponents', 'style', 'singlePage'])
     : {}
 
-  if (!isProduction) {
-    content.push(`global.currentResource = ${stringify(filename)}`)
-  }
-
-  if (tabBarStr && tabBarPagesMap) {
-    content.push(
-      `global.__tabBar = ${tabBarStr}`,
-      `Vue.observable(global.__tabBar)`,
-      `// @ts-ignore`,
-      `global.__tabBarPagesMap = ${shallowStringify(tabBarPagesMap)}`
-    )
-  }
-
-  content.push(code)
-
-  content.push(
-    `export default processOption(`,
-    `  global.currentOption,`,
-    `  ${stringify(ctorType)},`,
-    `  ${stringify(Object.keys(localPagesMap)[0])},`,
-    `  ${stringify(componentId)},`,
-    `  ${stringify(pageConfig)},`,
-    `  ${shallowStringify(pagesMap)},`,
-    `  ${shallowStringify(componentsMap)},`,
-    `  ${stringify(tabBarMap)},`,
-    `  ${stringify(componentGenerics)},`,
-    `  ${stringify(genericsInfo)},`,
-    `  getWxsMixin({}),`,
-    `  ${app ? `Vue, VueRouter` : i18n ? ',i18n' : ''}`,
-    `)`
+  s.prepend(
+    [
+      app && APP_CODE,
+      i18n && I18N_CODE,
+      OPTION_PROCESSOR_CODE,
+      components.join('\n'),
+      !isProduction && `global.currentResource = ${stringify(filename)}`,
+      tabBarStr &&
+        tabBarPagesMap &&
+        [
+          `global.__tabBar = ${tabBarStr}`,
+          `Vue.observable(global.__tabBar)`,
+          `// @ts-ignore`,
+          `global.__tabBarPagesMap = ${shallowStringify(tabBarPagesMap)}`
+        ].join('\n')
+    ]
+      .filter(Boolean)
+      .join('\n')
   )
 
-  return `\n${content.join('\n')}\n`
+  s.append(
+    [
+      `\nexport default processOption(`,
+      `  global.currentOption,`,
+      `  ${stringify(ctorType)},`,
+      `  ${stringify(Object.keys(localPagesMap)[0])},`,
+      `  ${stringify(componentId)},`,
+      `  ${stringify(pageConfig)},`,
+      `  ${shallowStringify(pagesMap)},`,
+      `  ${shallowStringify(componentsMap)},`,
+      `  ${stringify(tabBarMap)},`,
+      `  ${stringify(componentGenerics)},`,
+      `  ${stringify(genericsInfo)},`,
+      `  getWxsMixin({}),`,
+      `  ${app ? `Vue, VueRouter` : i18n ? ',i18n' : ''}`,
+      `)`
+    ].join('\n')
+  )
+
+  return {
+    code: s.toString(),
+    map: s.generateMap({
+      file: filename + '.map',
+      source: filename
+    })
+  }
 }
 
 /**
@@ -224,10 +238,8 @@ export async function resolveScript(
  */
 export async function genScriptBlock(
   descriptor: SFCDescriptor,
-  options: ResolvedOptions,
-  pluginContext: TransformPluginContext
+  code: string
 ): Promise<{ output: string }> {
-  const scriptContent = await resolveScript(descriptor, options, pluginContext)
   return {
     output: genComponentTag(descriptor.script, {
       attrs(script) {
@@ -236,12 +248,7 @@ export async function genScriptBlock(
         return attrs
       },
       content() {
-        return transformScript(
-          scriptContent,
-          descriptor,
-          options,
-          pluginContext
-        )
+        return code
       }
     })
   }

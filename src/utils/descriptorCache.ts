@@ -3,8 +3,7 @@ import slash from 'slash'
 import { Query } from './parseRequest'
 import pathHash from './pageHash'
 import { ResolvedOptions } from '../options'
-import compiler, { SFCBlock, SFCDescriptor } from '../compiler'
-import ensureArray from './ensureArray'
+import compiler, { SFCDescriptor } from '../compiler'
 
 const cache = new Map<string, SFCDescriptor>()
 const prevCache = new Map<string, SFCDescriptor | undefined>()
@@ -48,12 +47,6 @@ createComponent({})`
   return script
 }
 
-function normalizeBlock(block: SFCBlock | SFCBlock[] | null) {
-  ensureArray(block).forEach((b) => {
-    b.content = '\n' + b.content.replace(/^\n*/m, '')
-  })
-}
-
 export function createDescriptor(
   filename: string,
   code: string,
@@ -83,10 +76,6 @@ export function createDescriptor(
   if (!descriptor.script) {
     descriptor.script = genDescriptorScript(descriptor)
   }
-  normalizeBlock(descriptor.template)
-  normalizeBlock(descriptor.script)
-  normalizeBlock(descriptor.json)
-  normalizeBlock(descriptor.styles)
   cache.set(filename, descriptor)
   return descriptor
 }
