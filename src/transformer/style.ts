@@ -21,10 +21,7 @@ async function mpxTransformStyle(
   pluginContext: TransformPluginContext
 ) {
   const { autoScopeRules, defs, transRpxRules: transRpxRulesRaw } = options
-  const filter = createFilter(
-    autoScopeRules.include,
-    autoScopeRules.exclude
-  )
+  const filter = createFilter(autoScopeRules.include, autoScopeRules.exclude)
   const autoScope = autoScopeRules.include && filter(filename)
   const transRpxRules = transRpxRulesRaw
     ? Array.isArray(transRpxRulesRaw)
@@ -103,20 +100,21 @@ export async function transformStyle(
   index: number,
   pluginContext: TransformPluginContext
 ): Promise<TransformResult | undefined> {
-  const styleCode = await mpxTransformStyle(
+  const mpxStyle = await mpxTransformStyle(
     code,
     filename,
     descriptor,
     options,
     pluginContext
   )
-  return await vueTransformStyle(
-    styleCode.code,
+  const vueStyle = await vueTransformStyle(
+    mpxStyle.code,
     filename,
     descriptor,
     index,
     pluginContext
   )
+  return vueStyle?.code
 }
 
 /**

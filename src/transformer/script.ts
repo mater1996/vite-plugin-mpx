@@ -2,6 +2,8 @@ import fs from 'fs'
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
 import { SourceMap, TransformPluginContext } from 'rollup'
 import MagicString from 'magic-string'
+import { transformWithEsbuild } from 'vite'
+import path from 'path'
 import { ResolvedOptions } from '../options'
 import { SFCDescriptor } from '../compiler'
 import { APP_HELPER_CODE } from '../helper'
@@ -43,9 +45,13 @@ export async function transformScript(
   code: string
   map: SourceMap
 }> {
-  const code = await resolveScript(descriptor, options, pluginContext)
+  const { code, id: filename } = await resolveScript(
+    descriptor,
+    options,
+    pluginContext
+  )
   const s = new MagicString(code)
-  const { id: componentId, app, page, jsonConfig, filename } = descriptor
+  const { id: componentId, app, page, jsonConfig, script } = descriptor
   const tabBarMap = descriptor.tabBarMap
   const tabBarStr = descriptor.tabBarStr
   const localPagesMap = descriptor.pagesMap
@@ -155,6 +161,8 @@ export async function transformScript(
     ? omit(jsonConfig, ['usingComponents', 'style', 'singlePage'])
     : {}
 
+  s.trimLines()
+
   s.prepend(
     [
       app && APP_CODE,
@@ -172,7 +180,7 @@ export async function transformScript(
         ].join('\n')
     ]
       .filter(Boolean)
-      .join('\n')
+      .join('\n') + '\n'
   )
 
   s.append(
@@ -194,6 +202,23 @@ export async function transformScript(
     ].join('\n')
   )
 
+  // transform ts
+  if (
+    (script?.src && path.extname(filename) === '.ts') ||
+    script?.attrs.lang === 'ts'
+  ) {
+    const result = transformWithEsbuild(
+      s.toString(),
+      filename,
+      { loader: 'ts' },
+      s.generateMap({
+        file: filename + '.map',
+        source: filename
+      })
+    )
+    return result
+  }
+
   return {
     code: s.toString(),
     map: s.generateMap({
@@ -214,20 +239,30 @@ export async function resolveScript(
   descriptor: SFCDescriptor,
   options: ResolvedOptions,
   pluginContext: TransformPluginContext
-): Promise<string> {
+): Promise<{
+  code: string
+  id: string
+}> {
   const { script } = descriptor
-  let content = script?.content || ''
+  let code = script?.content || ''
   if (script?.src) {
-    const resolveId = await pluginContext.resolve(
+    const resolvedId = await pluginContext.resolve(
       script.src,
       descriptor.filename
     )
-    if (resolveId) {
-      pluginContext.addWatchFile(resolveId.id)
-      content = fs.readFileSync(resolveId.id, 'utf-8')
+    if (resolvedId) {
+      pluginContext.addWatchFile(resolvedId.id)
+      code = fs.readFileSync(resolvedId.id, 'utf-8')
+      return {
+        code,
+        id: resolvedId.id
+      }
     }
   }
-  return content
+  return {
+    code,
+    id: descriptor.filename
+  }
 }
 
 /**
@@ -242,10 +277,8 @@ export async function genScriptBlock(
 ): Promise<{ output: string }> {
   return {
     output: genComponentTag(descriptor.script, {
-      attrs(script) {
-        const attrs = { ...script?.attrs }
-        delete attrs.src
-        return attrs
+      attrs() {
+        return {}
       },
       content() {
         return code
