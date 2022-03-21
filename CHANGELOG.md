@@ -1,3 +1,15 @@
+# [1.0.0-alpha.13](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.12...1.0.0-alpha.13) (2022-03-21)
+
+
+### Bug Fixes
+
+* style transform ([93f12f9](https://github.com/mater1996/vite-plugin-mpx/commit/93f12f97b5a241c2d52aba589f22bc1835a3fa4d))
+
+
+### Features
+
+* support sourcemap ([79ee72c](https://github.com/mater1996/vite-plugin-mpx/commit/79ee72c2221ec7fe5f70bd898a124da50701cb07))
+
 # [1.0.0-alpha.12](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.11...1.0.0-alpha.12) (2021-12-16)
 
 
