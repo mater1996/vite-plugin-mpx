@@ -2,6 +2,7 @@ import { TransformPluginContext } from 'rollup'
 import fs from 'fs'
 import json5 from 'json5'
 import mpxJSON from '@mpxjs/webpack-plugin/lib/utils/mpx-json'
+import evalJSONJS from '@mpxjs/webpack-plugin/lib/utils/eval-json-js'
 import path from 'path'
 import { normalizePath } from '@rollup/pluginutils'
 import { ResolvedOptions } from '../options'
@@ -88,6 +89,23 @@ export async function resolveJson(
       }
     }
   }
+
+  if (json?.useJSONJS) {
+    content = JSON.stringify(
+      evalJSONJS(content, descriptor.filename, {
+        getMpx() {
+          return {
+            defs: options.defs
+          }
+        },
+        addDependency: pluginContext.addWatchFile.bind(pluginContext),
+        _compiler: {
+          inputFileSystem: fs
+        }
+      })
+    )
+  }
+
   return json5.parse(content)
 }
 

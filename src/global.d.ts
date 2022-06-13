@@ -12,6 +12,20 @@ declare module '@mpxjs/webpack-plugin/lib/style-compiler/plugins/vw'
 declare module '@mpxjs/webpack-plugin/lib/style-compiler/plugins/conditional-strip'
 declare module '@mpxjs/webpack-plugin/lib/style-compiler/plugins/scope-id'
 
+declare module '@mpxjs/webpack-plugin/lib/utils/eval-json-js' {
+  export default function (
+    source: string,
+    filename: string,
+    loaderContext: {
+      getMpx(): { defs: Record<string, unknown> }
+      addDependency(id: string): void
+      _compiler: {
+        inputFileSystem: any
+      }
+    }
+  ): string
+}
+
 declare module '@mpxjs/webpack-plugin/lib/utils/to-posix' {
   export default function (path: string): string
 }
@@ -66,6 +80,7 @@ declare module '@mpxjs/webpack-plugin/lib/template-compiler/compiler' {
     type: 'application/json' | 'json'
     attrs: { type: 'application/json' | 'json' }
     src: string
+    useJSONJS: boolean
   }
 
   export interface Style extends SFCBlock {

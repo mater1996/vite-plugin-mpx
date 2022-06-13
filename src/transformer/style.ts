@@ -69,8 +69,6 @@ async function mpxTransformStyle(
 
   const result = await postcss(plugins).process(code, postCssOptions)
   if (result.messages) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     result.messages.forEach(({ type, file }) => {
       if (type === 'dependency') {
         pluginContext.addWatchFile(file)
