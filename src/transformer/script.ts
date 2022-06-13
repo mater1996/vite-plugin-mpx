@@ -197,7 +197,7 @@ export async function transformScript(
       `  ${stringify(componentGenerics)},`,
       `  ${stringify(genericsInfo)},`,
       `  getWxsMixin({}),`,
-      `  ${app ? `Vue, VueRouter` : i18n ? ',i18n' : ''}`,
+      `  ${app ? `Vue, VueRouter` : i18n ? 'i18n' : ''}`,
       `)`
     ].join('\n')
   )
