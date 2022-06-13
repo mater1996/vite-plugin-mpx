@@ -1,3 +1,10 @@
+# [1.0.0-alpha.17](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.16...1.0.0-alpha.17) (2022-06-13)
+
+
+### Bug Fixes
+
+* js json parse error ([9e4620f](https://github.com/mater1996/vite-plugin-mpx/commit/9e4620ff38e0d09356b9672941313a5605ae0074))
+
 # [1.0.0-alpha.16](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.15...1.0.0-alpha.16) (2022-03-21)
 
 
