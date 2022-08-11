@@ -1,5 +1,4 @@
-import { Plugin, UserConfig } from 'vite'
-import { createFilter } from '@rollup/pluginutils'
+import { Plugin, UserConfig, createFilter } from 'vite'
 import { createVuePlugin } from 'vite-plugin-vue2'
 import replace from '@rollup/plugin-replace'
 import commonjs from '@rollup/plugin-commonjs'

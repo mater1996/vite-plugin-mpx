@@ -1,4 +1,5 @@
 import { TransformPluginContext, TransformResult } from 'rollup'
+import { createFilter } from 'vite'
 import genComponentTag from '@mpxjs/webpack-plugin/lib/utils/gen-component-tag'
 import { transformStyle as vueTransformStyle } from 'vite-plugin-vue2/dist/style'
 import postcss from 'postcss'
@@ -8,7 +9,6 @@ import rpx from '@mpxjs/webpack-plugin/lib/style-compiler/plugins/rpx'
 import vw from '@mpxjs/webpack-plugin/lib/style-compiler/plugins/vw'
 import pluginCondStrip from '@mpxjs/webpack-plugin/lib/style-compiler/plugins/conditional-strip'
 import scopeId from '@mpxjs/webpack-plugin/lib/style-compiler/plugins/scope-id'
-import { createFilter } from '@rollup/pluginutils'
 
 import { SFCDescriptor } from '../compiler'
 import { ResolvedOptions } from '../options'

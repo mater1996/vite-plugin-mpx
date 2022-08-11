@@ -1,8 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import { Plugin as EsbuildPlugin } from 'esbuild'
-import { Plugin } from 'vite'
-import { createFilter } from '@rollup/pluginutils'
+import { Plugin, createFilter } from 'vite'
 export interface CustomExtensionsOptions {
   include: string | RegExp | (string | RegExp)[]
   exclude?: string | RegExp | (string | RegExp)[]

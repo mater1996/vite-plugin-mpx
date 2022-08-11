@@ -1,5 +1,4 @@
-import { ViteDevServer } from 'vite'
-import { FilterPattern } from '@rollup/pluginutils'
+import { ViteDevServer, FilterPattern } from 'vite'
 
 export type Mode = 'wx' | 'web' | 'ali' | 'swan'
 

@@ -1,5 +1,4 @@
-import { Plugin } from 'vite'
-import { createFilter } from '@rollup/pluginutils'
+import { Plugin, createFilter } from 'vite'
 import mpxGlobal from '../mpx'
 import parseRequest from '../utils/parseRequest'
 
