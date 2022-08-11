@@ -54,6 +54,7 @@
     "vite": "^3.0.0"
   },
   "dependencies": {
+    "@mpxjs/webpack-plugin": "^2.6.102",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-replace": "^3.0.0",
     "debug": "^4.3.2",
@@ -63,8 +64,7 @@
     "qs": "^6.10.1",
     "rollup-plugin-polyfill-node": "^0.8.0",
     "slash": "^3.0.0",
-    "vite-plugin-vue2": "^2.0.0",
-    "vue-template-compiler": "^2.6.14"
+    "vite-plugin-vue2": "^2.0.0"
   },
   "peerDependencies": {
     "@mpxjs/webpack-plugin": "^2.6.102",
