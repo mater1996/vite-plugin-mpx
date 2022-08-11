@@ -1,3 +1,10 @@
+# [1.0.0-alpha.18](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.17...1.0.0-alpha.18) (2022-08-11)
+
+
+### Bug Fixes
+
+* i18n error ([8df53d6](https://github.com/mater1996/vite-plugin-mpx/commit/8df53d61f2344ddba83d3e5a12ad93e223c0cb9b))
+
 # [1.0.0-alpha.17](https://github.com/mater1996/vite-plugin-mpx/compare/1.0.0-alpha.16...1.0.0-alpha.17) (2022-06-13)
 
 
